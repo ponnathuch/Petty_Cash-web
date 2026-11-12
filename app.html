@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เงินสดย่อย</title>
+<style>
+:root {
+  --c-page: #f5f7f6; --c-surface: #ffffff; --c-surface-2: #eef3f1; --c-line: #dde5e1; --c-ink: #17251f; --c-ink-2: #4a5a53;
+  --c-brand: #1f6f50; --c-brand-strong: #17573f; --c-on-brand: #ffffff; --c-warn: #8a5a00; --c-warn-soft: #fff3d6;
+  --c-bad: #b3261e; --c-bad-soft: #fde8e6; --c-ok: #1b7f3b; --c-ok-soft: #e4f4e9;
+  --s-1: 4px; --s-2: 6px; --s-3: 8px; --s-4: 12px; --s-5: 16px; --s-thumb: 44px; --w-page: 1200px; --w-dialog: 520px;
+  --t-xs: 11px; --t-sm: 13px; --t-base: 15px; --t-lg: 18px; --t-tag: 12px; --s-print-cell: 3px;
+  --c-print-ink: #000000; --c-print-bg: #ffffff;
+  --r: 10px; --gap: 12px; --font: "Sarabun", "Leelawadee UI", "Tahoma", sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: var(--t-base)/1.5 var(--font); background: var(--c-page); color: var(--c-ink); }
+header { background: var(--c-brand); color: var(--c-on-brand); padding: var(--s-4) var(--s-5); display: flex; gap: var(--gap); align-items: center; flex-wrap: wrap; }
+header h1 { font-size: var(--t-lg); margin: 0; flex: 1; }
+header button { background: transparent; color: var(--c-on-brand); border: 1px solid var(--c-on-brand); }
+main { max-width: var(--w-page); margin: 0 auto; padding: var(--s-5); }
+.card { background: var(--c-surface); border: 1px solid var(--c-line); border-radius: var(--r); padding: var(--s-5); margin-bottom: var(--gap); }
+button { font: inherit; border-radius: var(--s-3); border: 1px solid var(--c-line); background: var(--c-surface); color: var(--c-ink); padding: var(--s-2) var(--s-4); cursor: pointer; }
+button.primary { background: var(--c-brand); color: var(--c-on-brand); border-color: var(--c-brand); }
+button.danger { color: var(--c-bad); border-color: var(--c-bad); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+input, select { font: inherit; padding: var(--s-2) var(--s-3); border: 1px solid var(--c-line); border-radius: var(--s-3); width: 100%; background: var(--c-surface); color: var(--c-ink); }
+label { display: block; font-size: var(--t-sm); color: var(--c-ink-2); margin-top: var(--s-3); }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: var(--s-3) var(--s-2); border-bottom: 1px solid var(--c-line); vertical-align: top; }
+th { font-size: var(--t-sm); color: var(--c-ink-2); font-weight: 600; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+.tag { display: inline-block; font-size: var(--t-tag); padding: 0 var(--s-2); border-radius: var(--s-2); margin-right: var(--s-1); }
+.tag.warn { background: var(--c-warn-soft); color: var(--c-warn); }
+.tag.bad { background: var(--c-bad-soft); color: var(--c-bad); }
+.tag.ok { background: var(--c-ok-soft); color: var(--c-ok); }
+.neg { color: var(--c-bad); font-weight: 600; }
+.row { display: flex; gap: var(--gap); flex-wrap: wrap; align-items: center; }
+.grow { flex: 1; }
+.muted { color: var(--c-ink-2); font-size: var(--t-sm); }
+.thumbs img { width: var(--s-thumb); height: var(--s-thumb); object-fit: cover; border-radius: var(--s-2); margin-right: var(--s-1); cursor: zoom-in; background: var(--c-surface-2); }
+.scroll { overflow-x: auto; }
+dialog { border: 1px solid var(--c-line); border-radius: var(--r); padding: var(--s-5); width: min(var(--w-dialog), 94vw); }
+dialog img.full { max-width: 100%; }
+#msg { position: fixed; bottom: var(--s-5); left: 50%; transform: translateX(-50%); background: var(--c-ink); color: var(--c-surface); padding: var(--s-3) 14px; border-radius: var(--s-3); display: none; }
+#print { display: none; }
+@media print {
+  body { background: var(--c-print-bg); }
+  header, main, #msg, dialog { display: none !important; }
+  #print { display: block; }
+  .page { page-break-after: always; padding: 10mm 12mm; font-size: var(--t-xs); color: var(--c-print-ink); }
+  .page:last-child { page-break-after: auto; }
+  .page table { border: 1px solid var(--c-print-ink); }
+  .page th, .page td { border: 1px solid var(--c-print-ink); padding: var(--s-print-cell) var(--s-1); color: var(--c-print-ink); }
+  .page .head { display: flex; justify-content: space-between; margin-bottom: var(--s-2); }
+  .page .box { display: inline-block; width: var(--s-4); height: var(--s-4); border: 1px solid var(--c-print-ink); text-align: center; line-height: var(--t-xs); margin-right: var(--s-2); }
+  .page .sign { display: flex; justify-content: space-around; margin-top: 30mm; text-align: center; }
+  .page .photo { height: 120mm; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .page .photo img { max-height: 110mm; max-width: 100%; }
+}
+.mt { margin-top: var(--s-4); }
+</style>
+</head>
+<body>
+<header><h1>เงินสดย่อย</h1><span id="who"></span><button id="btnHome" type="button">กระเป๋าทั้งหมด</button></header>
+<main id="app"><div class="card">กำลังโหลด…</div></main>
+<div id="print"></div>
+<dialog id="dlg"></dialog>
+<div id="msg" role="status"></div>
+<script>
+(function () {
+  'use strict';
+  var SUPABASE_URL = 'https://ilqjobhohgwetfnhmxxz.supabase.co';
+  var STORE_KEY = 'pc-session';
+  var VOUCHER_FORM = 'F-AC#103'; // DocGen form for each expense voucher (เบิกค่าใช้จ่าย)
+  var CLEARING_FORM = 'F-AC#101';
+  var ROWS_PER_PAGE = 30;
+  var PHOTO_CONCURRENCY = 4; // each photo is a Job Tracker (Apps Script) call; GAS throttles many at once
+  var S = { sess: null, staff: null, wallets: [], wallet: null, payments: [], clearings: [], settings: {}, sel: {} };
+  var app = document.getElementById('app');
+
+  function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function baht(n) { return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function dmy(iso) {
+    if (!iso) return '';
+    var d = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(iso + 'T00:00:00+07:00') : new Date(iso);
+    var b = new Date(d.getTime() + 7 * 3600 * 1000);
+    return b.getUTCDate() + '/' + (b.getUTCMonth() + 1) + '/' + b.getUTCFullYear();
+  }
+  function toast(t) { var m = document.getElementById('msg'); m.textContent = t; m.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(function () { m.style.display = 'none'; }, 3500); }
+
+  function api(action, body) {
+    var headers = { 'Content-Type': 'application/json' };
+    if (S.sess) headers['x-pc-session'] = S.sess;
+    return fetch(SUPABASE_URL + '/functions/v1/pc-api', { method: 'POST', headers: headers, body: JSON.stringify(Object.assign({ action: action }, body || {})) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { status: r.status, data: d }; }); })
+      .then(function (r) {
+        if (r.status === 401 && action !== 'session') { try { sessionStorage.removeItem(STORE_KEY); } catch (e) { /* storage blocked */ } throw new Error('หมดเวลาใช้งาน กรุณาเปิดจากเมนู "เงินสดย่อย" ใน Job Tracker อีกครั้ง'); }
+        if (r.status !== 200) throw new Error((r.data && r.data.error) || 'ระบบขัดข้อง กรุณาลองใหม่');
+        return r.data;
+      });
+  }
+  function fail(e) { toast(e.message || String(e)); }
+
+  // Photo loader: at most PHOTO_CONCURRENCY requests in flight, the rest wait in line.
+  var photoQueue = [], photoBusy = 0;
+  function photo(id, thumb) {
+    return new Promise(function (resolve, reject) {
+      photoQueue.push({ id: id, thumb: !!thumb, resolve: resolve, reject: reject });
+      pumpPhotos();
+    });
+  }
+  function pumpPhotos() {
+    while (photoBusy < PHOTO_CONCURRENCY && photoQueue.length) {
+      var job = photoQueue.shift();
+      photoBusy++;
+      api('photo', { id: job.id, thumb: job.thumb })
+        .then(function (d) { return 'data:' + d.mime + ';base64,' + d.b64; })
+        .then(job.resolve, job.reject)
+        .then(function () { photoBusy--; pumpPhotos(); });
+    }
+  }
+
+  function docgenUrl(form) {
+    var base = String(S.settings.docgen_url || '');
+    if (!base) return '';
+    return base + (base.indexOf('?') === -1 ? '?' : '&') + 'unit=' + encodeURIComponent(S.staff.unit) + '&who=' + encodeURIComponent(S.staff.n) + '&form=' + encodeURIComponent(form);
+  }
+  function openDocgen(form) {
+    var u = docgenUrl(form);
+    if (!u) return toast('ยังไม่ได้ตั้งลิงก์ DocGen ในหน้าตั้งค่า');
+    window.open(u, '_blank', 'noopener');
+  }
+
+  // ---------- wallets ----------
+  function home() {
+    S.wallet = null;
+    return api('wallets').then(function (d) {
+      S.wallets = d.wallets || [];
+      var rows = S.wallets.map(function (w) {
+        return '<tr><td><button type="button" data-open="' + w.id + '">' + esc(w.custodian_name) + '</button>' + (w.status === 'closed' ? ' <span class="tag">ปิดแล้ว</span>' : '') + '</td>' +
+          '<td>' + esc(w.unit_code || '') + '</td><td class="num">' + baht(w.limit_amount) + '</td>' +
+          '<td class="num' + (w.balance < 0 ? ' neg' : '') + '">' + baht(w.balance) + '</td>' +
+          '<td class="num">' + w.pending_count + (w.flagged ? ' <span class="tag warn">ตรวจ ' + w.flagged + '</span>' : '') + '</td>' +
+          (S.staff.role === 'setter' ? '<td><button type="button" data-edit="' + w.id + '">แก้ไข</button></td>' : '') + '</tr>';
+      }).join('');
+      app.innerHTML = '<div class="card"><div class="row"><h2 class="grow">กระเป๋าเงินสดย่อย</h2>' +
+        (S.staff.role === 'setter' ? '<button type="button" id="btnNew" class="primary">ตั้งกระเป๋าใหม่</button><button type="button" id="btnSettings">ตั้งค่า</button>' : '') + '</div>' +
+        (rows ? '<div class="scroll"><table><thead><tr><th>ผู้รักษาเงินสดย่อย</th><th>หน่วยงาน</th><th class="num">วงเงิน</th><th class="num">คงเหลือ</th><th class="num">รอเคลียร์</th>' +
+          (S.staff.role === 'setter' ? '<th></th>' : '') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' : '<p class="muted">ยังไม่มีกระเป๋าที่คุณดูแล</p>') + '</div>';
+      app.querySelectorAll('[data-open]').forEach(function (b) { b.onclick = function () { openWallet(Number(b.dataset.open)); }; });
+      app.querySelectorAll('[data-edit]').forEach(function (b) { b.onclick = function () { walletForm(S.wallets.find(function (w) { return w.id === Number(b.dataset.edit); })); }; });
+      var n = document.getElementById('btnNew'); if (n) n.onclick = function () { walletForm(null); };
+      var st = document.getElementById('btnSettings'); if (st) st.onclick = settingsForm;
+    }).catch(fail);
+  }
+
+  function walletForm(w) {
+    api('people').then(function (d) {
+      var opts = (d.people || []).map(function (p) {
+        return '<option value="' + esc(p.username) + '" data-unit="' + esc(p.unit_code || '') + '"' + (w && w.custodian === p.username ? ' selected' : '') + '>' + esc(p.name || p.username) + ' (' + esc(p.username) + ')' + (p.line_user_id ? '' : ' - ยังไม่ผูก LINE') + '</option>';
+      }).join('');
+      dialog('<h3>' + (w ? 'แก้ไขกระเป๋า' : 'ตั้งกระเป๋าใหม่') + '</h3>' +
+        '<label>ผู้รักษาเงินสดย่อย<select id="fCust"' + (w ? ' disabled' : '') + '><option value="">เลือก</option>' + opts + '</select></label>' + // ds-allow-native-select: keyboard and screen-reader friendly on branch Chromium 109
+        '<label>รหัสพนักงาน<input id="fEmp" value="' + esc(w ? w.employee_code || '' : '') + '"></label>' +
+        '<label>รหัสหน่วยงาน (ใช้ขอเลขเอกสาร)<input id="fUnit" value="' + esc(w ? w.unit_code || '' : '') + '"></label>' +
+        '<label>วงเงิน (บาท)<input id="fLimit" type="number" min="1" step="0.01" value="' + esc(w ? w.limit_amount : '') + '"></label>' +
+        '<label>แอดมินผู้ดูแล (username คั่นด้วยจุลภาค)<input id="fAdmins" value="' + esc(w ? (w.admins || []).join(', ') : '') + '"></label>' +
+        '<div class="row mt">' + (w && w.status === 'open' ? '<button type="button" class="danger" id="fClose">ปิดกระเป๋า</button>' : '') +
+        '<span class="grow"></span><button type="button" data-close>ยกเลิก</button><button type="button" class="primary" id="fSave">บันทึก</button></div>');
+      var sel = document.getElementById('fCust');
+      sel.onchange = function () { var o = sel.selectedOptions[0]; if (o && !document.getElementById('fUnit').value) document.getElementById('fUnit').value = o.dataset.unit || ''; };
+      document.getElementById('fSave').onclick = function () {
+        api('wallet_save', {
+          id: w ? w.id : undefined, custodian: w ? w.custodian : sel.value, employeeCode: val('fEmp'), unitCode: val('fUnit'),
+          limit: Number(val('fLimit')), admins: val('fAdmins').split(/[\s,]+/).filter(Boolean)
+        }).then(function () { closeDialog(); toast('บันทึกแล้ว'); home(); }).catch(fail);
+      };
+      var c = document.getElementById('fClose');
+      if (c) c.onclick = function () {
+        if (!confirm('ปิดกระเป๋านี้? ปิดแล้วผู้รักษาเงินสดย่อยจะสั่ง "จ่าย" ไม่ได้อีก')) return;
+        api('wallet_close', { id: w.id }).then(function () { closeDialog(); toast('ปิดกระเป๋าแล้ว'); home(); }).catch(fail);
+      };
+    }).catch(fail);
+  }
+
+  function settingsForm() {
+    var s = S.settings;
+    dialog('<h3>ตั้งค่า</h3>' +
+      '<label>วันที่ส่ง LINE เตือนแอดมิน (คั่นด้วยจุลภาค)<input id="sDays" value="' + esc(s.remind_days || '10,20,25') + '"></label>' +
+      '<label>เตือนเมื่อยอดคงเหลือต่ำกว่า (% ของวงเงิน)<input id="sLow" type="number" min="0" max="100" value="' + esc(s.low_pct || '20') + '"></label>' +
+      '<label>เตือนเมื่อออกใบเคลียร์แล้วยังไม่โอนเกิน (วัน)<input id="sUnpaid" type="number" min="0" max="100" value="' + esc(s.unpaid_days || '7') + '"></label>' +
+      '<label>ลิงก์ระบบ DocGen (ใช้ขอเลขที่เอกสาร)<input id="sDocgen" value="' + esc(s.docgen_url || '') + '"></label>' +
+      '<div class="row mt"><span class="grow"></span><button type="button" data-close>ยกเลิก</button><button type="button" class="primary" id="sSave">บันทึก</button></div>');
+    document.getElementById('sSave').onclick = function () {
+      api('settings_save', { remind_days: val('sDays'), low_pct: Number(val('sLow')), unpaid_days: Number(val('sUnpaid')), docgen_url: val('sDocgen') })
+        .then(function () { return loadSettings(); }).then(function () { closeDialog(); toast('บันทึกแล้ว'); }).catch(fail);
+    };
+  }
+
+  // ---------- one wallet ----------
+  function openWallet(id) {
+    S.wallet = S.wallets.find(function (w) { return w.id === id; });
+    S.sel = {};
+    return api('payments', { walletId: id }).then(function (d) {
+      S.payments = d.payments || [];
+      S.clearings = d.clearings || [];
+      renderWallet();
+    }).catch(fail);
+  }
+
+  var FLAG = { mismatch: ['ยอดไม่ตรง', 'warn'], duplicate: ['อาจซ้ำ', 'bad'] };
+  var EVIDENCE = { receipt: 'ใบกำกับภาษี/ใบเสร็จ', substitute: 'ใบแทนใบเสร็จ' };
+
+  function renderWallet() {
+    var w = S.wallet;
+    var pending = S.payments.filter(function (p) { return p.status === 'pending' || p.status === 'awaiting'; });
+    var rows = pending.map(function (p) {
+      var photos = (p.pc_photos || []).slice().sort(function (a, b) { return a.sort - b.sort; });
+      return '<tr><td>' + (p.status === 'pending' ? '<input type="checkbox" data-sel="' + p.id + '"' + (S.sel[p.id] ? ' checked' : '') + ' aria-label="เลือกรายการ">' : '<span class="tag warn">รอยืนยัน</span>') + '</td>' +
+        '<td>' + dmy(p.ai_date || p.created_at) + '</td>' +
+        '<td>' + esc(p.description) + (p.branch_code ? ' <span class="tag">' + esc(p.branch_code) + '</span>' : '') +
+          (p.flags || []).map(function (f) { return FLAG[f] ? ' <span class="tag ' + FLAG[f][1] + '">' + FLAG[f][0] + '</span>' : ''; }).join('') +
+          (p.photo_pending ? ' <span class="tag warn">รูปยังไม่เข้า Drive</span>' : '') + '</td>' +
+        '<td>' + esc(EVIDENCE[p.evidence_type] || '-') + '</td>' +
+        '<td>' + (p.voucher_no ? esc(p.voucher_no) : '<span class="tag bad">ยังไม่มี</span>') + '</td>' +
+        '<td class="num">' + baht(p.amount) + '</td>' +
+        '<td class="thumbs">' + photos.map(function (ph) { return '<img alt="หลักฐาน" data-photo="' + ph.id + '">'; }).join('') + '</td>' +
+        '<td>' + (p.status === 'pending' ? '<button type="button" data-pay="' + p.id + '">แก้ไข</button> ' : '') + '<button type="button" class="danger" data-reject="' + p.id + '">ไม่รับ</button></td></tr>';
+    }).join('');
+    var cl = S.clearings.map(function (c) {
+      return '<tr><td>' + dmy(c.created_at) + '</td><td><input data-doc="' + c.id + '" value="' + esc(c.doc_no || '') + '" placeholder="วางเลขที่ใบเคลียร์"></td>' +
+        '<td class="num">' + baht(c.total) + '</td><td>' + (c.status === 'reimbursed' ? '<span class="tag ok">โอนแล้ว</span>' : '<span class="tag warn">รอโอน</span>') + '</td>' +
+        '<td><button type="button" data-print="' + c.id + '">พิมพ์</button> ' + (c.status !== 'reimbursed' ? '<button type="button" data-paid="' + c.id + '">โอนแล้ว</button>' : '') + '</td></tr>';
+    }).join('');
+    app.innerHTML = '<div class="card"><div class="row"><h2 class="grow">' + esc(w.custodian_name) + '</h2>' +
+      '<span>วงเงิน ' + baht(w.limit_amount) + ' · คงเหลือ <b class="' + (w.balance < 0 ? 'neg' : '') + '">' + baht(w.balance) + '</b></span></div>' +
+      '<div class="row mt"><button type="button" id="btnVoucher">ขอเลขที่ใบเบิก (DocGen)</button><span class="grow"></span>' +
+      '<span id="selSum" class="muted"></span><button type="button" class="primary" id="btnClear">ออกใบเคลียร์</button></div>' +
+      (rows ? '<div class="scroll"><table><thead><tr><th></th><th>ว/ด/ป</th><th>รายการ</th><th>หลักฐาน</th><th>เลขที่ใบเบิกค่าใช้จ่าย</th><th class="num">จำนวนเงิน</th><th>รูป</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+        : '<p class="muted">ไม่มีรายการรอเคลียร์</p>') + '</div>' +
+      '<div class="card"><div class="row"><h3 class="grow">ใบเคลียร์</h3><button type="button" id="btnClearingNo">ขอเลขที่ใบเคลียร์ (DocGen)</button></div>' +
+      (cl ? '<div class="scroll"><table><thead><tr><th>วันที่</th><th>เลขที่</th><th class="num">ยอด</th><th>สถานะ</th><th></th></tr></thead><tbody>' + cl + '</tbody></table></div>' : '<p class="muted">ยังไม่มีใบเคลียร์</p>') + '</div>';
+
+    document.getElementById('btnVoucher').onclick = function () { openDocgen(VOUCHER_FORM); };
+    document.getElementById('btnClearingNo').onclick = function () { openDocgen(CLEARING_FORM); };
+    app.querySelectorAll('[data-sel]').forEach(function (c) { c.onchange = function () { S.sel[c.dataset.sel] = c.checked; updateSel(); }; });
+    app.querySelectorAll('[data-pay]').forEach(function (b) { b.onclick = function () { paymentForm(S.payments.find(function (p) { return p.id === Number(b.dataset.pay); })); }; });
+    app.querySelectorAll('[data-reject]').forEach(function (b) {
+      b.onclick = function () {
+        var reason = prompt('เหตุผลที่ไม่รับรายการนี้ (ผู้รักษาเงินสดย่อยจะได้รับทาง LINE)');
+        if (reason === null) return;
+        api('payment_reject', { id: Number(b.dataset.reject), reason: reason }).then(function () { toast('ไม่รับรายการแล้ว'); refresh(); }).catch(fail);
+      };
+    });
+    app.querySelectorAll('[data-photo]').forEach(function (img) {
+      photo(Number(img.dataset.photo), true).then(function (src) { img.src = src; }).catch(function () { img.alt = 'โหลดรูปไม่ได้'; });
+      img.onclick = function () {
+        photo(Number(img.dataset.photo)).then(function (src) { dialog('<img class="full" alt="หลักฐาน" src="' + src + '"><div class="row"><span class="grow"></span><button type="button" data-close>ปิด</button></div>'); }).catch(fail);
+      };
+    });
+    app.querySelectorAll('[data-doc]').forEach(function (inp) {
+      inp.onchange = function () { api('clearing_save', { id: Number(inp.dataset.doc), docNo: inp.value }).then(function () { toast('บันทึกเลขที่แล้ว'); refresh(); }).catch(fail); };
+    });
+    app.querySelectorAll('[data-paid]').forEach(function (b) {
+      b.onclick = function () {
+        if (!confirm('ยืนยันว่าโอนเงินชดเชยให้ผู้รักษาเงินสดย่อยแล้ว? วงเงินจะคืนตามยอดใบเคลียร์')) return;
+        api('clearing_reimbursed', { id: Number(b.dataset.paid) }).then(function () { toast('บันทึกว่าโอนแล้ว'); refreshAll(); }).catch(fail);
+      };
+    });
+    app.querySelectorAll('[data-print]').forEach(function (b) { b.onclick = function () { printClearing(Number(b.dataset.print)); }; });
+    document.getElementById('btnClear').onclick = createClearing;
+    updateSel();
+  }
+
+  function selected() { return S.payments.filter(function (p) { return S.sel[p.id] && p.status === 'pending'; }); }
+  function updateSel() {
+    var sel = selected();
+    var sum = sel.reduce(function (s, p) { return s + Number(p.amount); }, 0);
+    var missing = sel.filter(function (p) { return !p.voucher_no; }).length;
+    document.getElementById('selSum').textContent = sel.length ? 'เลือก ' + sel.length + ' รายการ ' + baht(sum) + ' บาท' + (missing ? ' · ขาดเลขที่ใบเบิก ' + missing + ' รายการ' : '') : '';
+    document.getElementById('btnClear').disabled = !sel.length || missing > 0;
+  }
+
+  function paymentForm(p) {
+    dialog('<h3>แก้ไขรายการ</h3>' +
+      '<p class="muted">ข้อความจาก LINE: ' + esc(p.original_text || '-') + (p.ai_amount != null ? ' · ยอดที่อ่านจากสลิป ' + baht(p.ai_amount) : '') + '</p>' +
+      '<label>จำนวนเงิน<input id="pAmt" type="number" min="0.01" step="0.01" value="' + esc(p.amount) + '"></label>' +
+      '<label>รายการ<input id="pDesc" value="' + esc(p.description) + '"></label>' +
+      '<label>สาขาที่เกี่ยวข้อง<input id="pBranch" value="' + esc(p.branch_code || '') + '"></label>' +
+      '<label>ประเภทหลักฐาน<select id="pEv"><option value="">ไม่ระบุ</option><option value="receipt"' + (p.evidence_type === 'receipt' ? ' selected' : '') + '>ใบกำกับภาษี/ใบเสร็จ</option><option value="substitute"' + (p.evidence_type === 'substitute' ? ' selected' : '') + '>ใบแทนใบเสร็จ</option></select></label>' + // ds-allow-native-select: keyboard and screen-reader friendly on branch Chromium 109
+      '<label>เลขที่ใบเบิกค่าใช้จ่าย<input id="pVoucher" value="' + esc(p.voucher_no || '') + '"></label>' +
+      '<div class="row mt"><button type="button" id="pDocgen">ขอเลขที่ใบเบิก (DocGen)</button><span class="grow"></span><button type="button" data-close>ยกเลิก</button><button type="button" class="primary" id="pSave">บันทึก</button></div>');
+    document.getElementById('pDocgen').onclick = function () { openDocgen(VOUCHER_FORM); };
+    document.getElementById('pSave').onclick = function () {
+      api('payment_save', { id: p.id, amount: Number(val('pAmt')), description: val('pDesc'), branchCode: val('pBranch'), evidenceType: val('pEv') || null, voucherNo: val('pVoucher') })
+        .then(function () { closeDialog(); toast('บันทึกแล้ว'); refresh(); }).catch(fail);
+    };
+  }
+
+  function createClearing() {
+    var ids = selected().map(function (p) { return p.id; });
+    if (!confirm('ออกใบเคลียร์ ' + ids.length + ' รายการ? รายการที่เลือกจะแก้ไขไม่ได้อีก')) return;
+    api('clearing_create', { walletId: S.wallet.id, ids: ids }).then(function (d) {
+      toast('ออกใบเคลียร์แล้ว');
+      return refreshAll().then(function () { printClearing(d.id); });
+    }).catch(fail);
+  }
+
+  // ---------- F-AC#101 print view ----------
+  function printClearing(id) {
+    var c = S.clearings.find(function (x) { return x.id === id; });
+    var w = S.wallet;
+    var items = S.payments.filter(function (p) { return p.clearing_id === id; });
+    var pages = [];
+    for (var i = 0; i < Math.max(items.length, 1); i += ROWS_PER_PAGE) pages.push(items.slice(i, i + ROWS_PER_PAGE));
+    var sum = function (t) { return items.filter(function (p) { return t === null ? true : p.evidence_type === t; }).reduce(function (s, p) { return s + Number(p.amount); }, 0); };
+    var cell = function (p, t) { return p.evidence_type === t ? baht(p.amount) : '-'; };
+    var html = pages.map(function (rows, pi) {
+      var last = pi === pages.length - 1;
+      return '<div class="page"><div class="head"><div><b>ICARE HEALTH</b><br>บริษัท ไอแคร์ เฮลท์ จำกัด</div><div>ใบเคลียร์เงินทดรองจ่าย/ใบเบิกชดเชยเงินสดย่อย</div></div>' +
+        '<div class="head"><div><span class="box"></span>เคลียร์เงินทดรองจ่าย<br><span class="box">/</span>เบิกชดเชยเงินสดย่อย &nbsp; ผู้รักษาเงินสดย่อย</div>' +
+        '<div>เลขที่ ' + esc(c.doc_no || '................') + '<br>วันที่ ' + dmy(c.created_at) + '</div></div>' +
+        '<div>วงเงินสดย่อย ' + baht(w.limit_amount) + ' บาท</div>' +
+        '<div>ชื่อพนักงานผู้ขอเบิก ' + esc(w.custodian_name) + ' &nbsp; รหัสพนักงาน(ผู้ขอเบิก) ' + esc(w.employee_code || '') + '</div>' +
+        '<table><thead><tr><th rowspan="2">ลำดับ</th><th rowspan="2">ว/ด/ป</th><th rowspan="2">เลขที่ใบเบิกค่าใช้จ่าย</th><th rowspan="2">รายการ</th><th colspan="2">จำนวนเงิน (บาท)</th><th rowspan="2">รวม(บาท)</th></tr>' +
+        '<tr><th>ใบกำกับภาษี/ใบเสร็จ</th><th>ใบแทนใบเสร็จ</th></tr></thead><tbody>' +
+        rows.map(function (p, k) {
+          return '<tr><td>' + (pi * ROWS_PER_PAGE + k + 1) + '</td><td>' + dmy(p.ai_date || p.created_at) + '</td><td>' + esc(p.voucher_no) + '</td><td>' + esc(p.description) + '</td>' +
+            '<td class="num">' + cell(p, 'receipt') + '</td><td class="num">' + cell(p, 'substitute') + '</td><td class="num">' + baht(p.amount) + '</td></tr>';
+        }).join('') +
+        (last ? '<tr><td colspan="4" style="text-align:center">ค่าใช้จ่ายทั้งหมด</td><td class="num">' + (sum('receipt') ? baht(sum('receipt')) : '-') + '</td><td class="num">' + (sum('substitute') ? baht(sum('substitute')) : '-') + '</td><td class="num">' + baht(sum(null)) + '</td></tr>' +
+          '<tr><td colspan="6">ยอดเบิกเงินทดรองจ่าย/เงินสดย่อย</td><td class="num">' + baht(sum(null)) + '</td></tr>' : '') +
+        '</tbody></table>' +
+        (last ? '<div class="sign"><div>..............................<br>ผู้เบิกเงินทดรองจ่าย/ผู้รักษาเงินสดย่อย<br>....../....../......</div><div>..............................<br>ผู้ตรวจสอบ<br>....../....../......</div><div>..............................<br>ผู้อนุมัติ<br>....../....../......</div></div>' : '') +
+        '<div class="muted" style="text-align:right">' + CLEARING_FORM + ' คืนเงินทดรองจ่าย-เบิกชดเชยเงินสดย่อย · หน้า ' + (pi + 1) + '/' + pages.length + '</div></div>';
+    }).join('');
+    // evidence photos in row order, two per page
+    var photos = [];
+    items.forEach(function (p, k) {
+      (p.pc_photos || []).slice().sort(function (a, b) { return a.sort - b.sort; }).forEach(function (ph) { photos.push({ id: ph.id, label: 'ลำดับ ' + (k + 1) + ' · ' + (p.voucher_no || '') + ' · ' + baht(p.amount) + ' บาท' }); });
+    });
+    toast(photos.length ? 'กำลังโหลดรูปหลักฐาน ' + photos.length + ' รูป…' : 'กำลังเตรียมพิมพ์…');
+    Promise.all(photos.map(function (ph) {
+      return photo(ph.id).then(function (src) { ph.src = src; }).catch(function () { ph.src = ''; });
+    })).then(function () {
+      var failed = photos.filter(function (ph) { return !ph.src; }).length;
+      if (failed && !confirm('โหลดรูปไม่ได้ ' + failed + ' รูป จะพิมพ์ใบเคลียร์โดยไม่มีรูปเหล่านั้นไหม')) return;
+      for (var i = 0; i < photos.length; i += 2) {
+        html += '<div class="page">' + photos.slice(i, i + 2).map(function (ph) {
+          return '<div class="photo">' + (ph.src ? '<img alt="หลักฐาน" src="' + ph.src + '">' : '<p>โหลดรูปไม่ได้</p>') + '<div>' + esc(ph.label) + '</div></div>';
+        }).join('') + '</div>';
+      }
+      document.getElementById('print').innerHTML = html;
+      setTimeout(function () { window.print(); }, 300);
+    });
+  }
+
+  // ---------- helpers ----------
+  function val(id) { return String(document.getElementById(id).value || '').trim(); }
+  function dialog(inner) {
+    var d = document.getElementById('dlg');
+    d.innerHTML = inner;
+    d.querySelectorAll('[data-close]').forEach(function (b) { b.onclick = closeDialog; });
+    if (!d.open) d.showModal();
+  }
+  function closeDialog() { var d = document.getElementById('dlg'); if (d.open) d.close(); }
+  function refresh() { return openWallet(S.wallet.id); }
+  function refreshAll() {
+    var id = S.wallet.id;
+    return api('wallets').then(function (d) { S.wallets = d.wallets || []; return openWallet(id); });
+  }
+  function loadSettings() { return api('settings_get').then(function (d) { S.settings = d.settings || {}; }); }
+
+  function start(sess, staff) {
+    S.sess = sess; S.staff = staff;
+    document.getElementById('who').textContent = staff.n + (staff.role === 'setter' ? ' (ผู้ตั้งกระเป๋า)' : '');
+    document.getElementById('btnHome').onclick = home;
+    loadSettings().then(home).catch(fail);
+  }
+
+  var q = new URLSearchParams(location.search), sso = q.get('sso');
+  if (sso) {
+    q.delete('sso');
+    history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q.toString() : ''));
+    api('session', { link: sso }).then(function (d) {
+      try { sessionStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch (e) { /* storage blocked */ }
+      start(d.session, d.staff);
+    }).catch(function () { app.innerHTML = '<div class="card">ลิงก์หมดอายุหรือใช้ไปแล้ว กรุณาเปิดจากเมนู "เงินสดย่อย" ใน Job Tracker อีกครั้ง</div>'; });
+  } else {
+    var saved = null; try { saved = JSON.parse(sessionStorage.getItem(STORE_KEY)); } catch (e) { /* ignore */ }
+    if (saved && saved.session) start(saved.session, saved.staff);
+    else app.innerHTML = '<div class="card">กรุณาเปิดจากเมนู "เงินสดย่อย" ใน Job Tracker</div>';
+  }
+})();
+</script>
+</body>
+</html>
