@@ -66,7 +66,7 @@ button:disabled, button:disabled:hover { opacity: .45; cursor: not-allowed; back
 button.primary:disabled, button.primary:disabled:hover { background: var(--c-brand); }
 input, select { font: inherit; min-height: var(--s-tap); padding: var(--s-2) var(--s-4); border: 1px solid var(--c-line-strong); border-radius: var(--r-sm); width: 100%; background: var(--c-surface); color: var(--c-ink); margin-top: var(--s-1); }
 input:focus, select:focus { border-color: var(--c-brand); }
-input[type=checkbox] { width: var(--w-check); height: var(--w-check); min-height: 0; margin: 0; accent-color: var(--c-brand); cursor: pointer; }
+input[type=checkbox], input[type=radio] { width: var(--w-check); height: var(--w-check); min-height: 0; margin: 0; accent-color: var(--c-brand); cursor: pointer; }
 label { display: block; font-size: var(--t-sm); font-weight: 600; color: var(--c-ink-2); margin-top: var(--s-4); }
 
 /* KPI strip */
@@ -174,6 +174,7 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
 .dot { width: var(--s-3); height: var(--s-3); border-radius: var(--r-pill); display: inline-block; }
 .dot.pend, .stackbar .pend { background: var(--c-warn-bar); }
 .dot.iss, .stackbar .iss { background: var(--c-iss); }
+.stackbar .adj { background: var(--c-line-strong); }
 .stackbar { display: flex; height: var(--s-bar-lg); border-radius: var(--r-pill); background: var(--c-brand); overflow: hidden; }
 .stackbar i { display: block; width: var(--p); }
 .sum-note { margin: calc(var(--s-3) * -1) 0 0; }
@@ -191,6 +192,14 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
 .chip[aria-pressed="true"] span { background: var(--c-chip-count); color: var(--c-surface); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .note-line { display: flex; gap: var(--s-2); align-items: flex-start; margin-top: var(--s-2); font-size: var(--t-sm); color: var(--c-ink-2); background: var(--c-warn-soft); border-radius: var(--r-sm); padding: var(--s-1) var(--s-3); }
+.radios { border: 0; padding: 0; margin: var(--s-4) 0 0; display: flex; gap: var(--s-5); flex-wrap: wrap; }
+.radios legend { font-size: var(--t-sm); font-weight: 600; color: var(--c-ink-2); padding: 0; margin-bottom: var(--s-1); }
+.radios label { display: inline-flex; align-items: center; gap: var(--s-2); margin: 0; min-height: var(--s-tap); font-weight: 400; color: var(--c-ink); cursor: pointer; }
+.adj-void td { color: var(--c-ink-3); }
+.adj-void .amt { text-decoration: line-through; }
+.amt.plus { color: var(--c-ok); }
+.amt.minus { color: var(--c-bad); }
+.sum-extra { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-2); }
 .note-line svg { width: var(--s-5); height: var(--s-5); margin-top: var(--s-1); color: var(--c-warn); }
 textarea { font: inherit; width: 100%; padding: var(--s-3) var(--s-4); border: 1px solid var(--c-line-strong); border-radius: var(--r-sm); margin-top: var(--s-1); resize: vertical; color: var(--c-ink); background: var(--c-surface); }
 textarea:focus { border-color: var(--c-brand); outline: none; box-shadow: 0 0 0 var(--s-ring) var(--c-focus); }
@@ -409,8 +418,45 @@ tr[hidden] { display: none !important; }
       S.wallet = S.wallets.find(function (w) { return w.id === id; }) || S.wallet;
       S.payments = d.payments || [];
       S.clearings = d.clearings || [];
+      S.adjustments = d.adjustments || [];
       renderWallet();
     }).catch(fail);
+  }
+
+  // setters adjust cash on hand (opening balance, interest); adjustments are never cleared, a wrong one is voided
+  var ADJ = { opening: 'ยอดยกมา', interest: 'ดอกเบี้ย', interest_return: 'โอนดอกเบี้ยคืนบริษัท', other: 'อื่น ๆ' };
+  var signed = function (n) { n = Number(n); return (n > 0 ? '+' : '-') + baht(Math.abs(n)); };
+  function adjustForm() {
+    var w = S.wallet;
+    dialog('<h3>ปรับยอดคงเหลือ</h3>' +
+      '<p class="muted note">ใช้เมื่อเงินในมือผู้รักษาเงินสดย่อยเปลี่ยนโดยไม่ใช่รายการจ่าย เช่น ยอดยกมาวันเริ่มใช้ระบบ หรือได้ดอกเบี้ย ยอดที่ปรับจะไม่ถูกเคลียร์ และผู้รักษาเงินสดย่อยจะได้รับแจ้งทาง LINE</p>' +
+      '<label>ประเภท<select id="aKind">' + Object.keys(ADJ).map(function (k) { return '<option value="' + k + '">' + ADJ[k] + '</option>'; }).join('') + '</select></label>' + // ds-allow-native-select: keyboard and screen-reader friendly on branch Chromium 109
+      '<fieldset id="aSignBox" class="radios"><legend>ปรับ</legend>' +
+        '<label><input type="radio" name="aSign" value="out" checked> ลดยอด</label><label><input type="radio" name="aSign" value="in"> เพิ่มยอด</label></fieldset>' +
+      '<label>จำนวนเงิน (บาท)<input id="aAmt" type="number" min="0.01" step="0.01" inputmode="decimal"></label>' +
+      '<label>เหตุผล<textarea id="aReason" rows="2" maxlength="300" placeholder="เช่น เงินในมือวันเริ่มใช้ระบบ 3,200 บาท"></textarea></label>' +
+      '<p class="muted" id="aPreview" aria-live="polite"></p>' +
+      '<div class="foot"><span class="grow"></span><button type="button" data-close>ยกเลิก</button><button type="button" class="primary" id="aSave">บันทึก</button></div>');
+    var kind = document.getElementById('aKind'), box = document.getElementById('aSignBox');
+    var sign = function () {
+      if (kind.value === 'interest') return 1;
+      if (kind.value === 'interest_return') return -1;
+      return document.querySelector('input[name="aSign"]:checked').value === 'in' ? 1 : -1;
+    };
+    var preview = function () {
+      box.hidden = kind.value === 'interest' || kind.value === 'interest_return';
+      var a = Math.round(Number(val('aAmt')) * 100) / 100;
+      document.getElementById('aPreview').textContent = a > 0
+        ? 'ปรับ ' + signed(sign() * a) + ' บาท คงเหลือจะเป็น ' + baht(Number(w.balance) + sign() * a) + ' บาท' : '';
+    };
+    kind.onchange = preview;
+    document.getElementById('aAmt').oninput = preview;
+    box.onchange = preview;
+    preview();
+    document.getElementById('aSave').onclick = function () {
+      api('adjust_create', { walletId: w.id, kind: kind.value, amount: Number(val('aAmt')), sign: sign() > 0 ? 'in' : 'out', reason: val('aReason') })
+        .then(function () { closeDialog(); toast('ปรับยอดแล้ว'); refresh(); }).catch(fail);
+    };
   }
 
   var FLAG = { mismatch: ['ยอดไม่ตรง', 'warn'], duplicate: ['อาจซ้ำ', 'bad'] };
@@ -453,6 +499,7 @@ tr[hidden] { display: none !important; }
 
   function renderWallet() {
     var w = S.wallet;
+    var setter = S.staff.role === 'setter';
     var pending = S.payments.filter(function (p) { return p.status === 'pending' || p.status === 'awaiting'; });
     var sumOf = function (xs, k) { return xs.reduce(function (s, x) { return s + Number(x[k] || 0); }, 0); };
     var waitClear = sumOf(pending.filter(function (p) { return p.status === 'pending'; }), 'amount');
@@ -502,8 +549,12 @@ tr[hidden] { display: none !important; }
         '<div class="tile hl' + (w.balance < 0 ? ' neg' : low ? ' low' : '') + '"><span>คงเหลือ</span><b>' + baht(w.balance) + '</b></div>' +
       '</div>' +
       '<div class="stackbar" role="img" aria-label="รอเคลียร์ ' + baht(waitClear) + ' รอโอนคืน ' + baht(waitPay) + ' คงเหลือ ' + baht(w.balance) + ' จากวงเงิน ' + baht(limit) + '">' +
-        '<i class="pend" style="--p:' + pct(waitClear) + '%"></i><i class="iss" style="--p:' + pct(waitPay) + '%"></i></div>' +
-      '<p class="muted sum-note">' + (w.balance < 0 ? 'ผู้รักษาเงินสดย่อยสำรองจ่ายเกินวงเงิน ' + baht(-w.balance) + ' บาท' : 'ใช้ไป ' + baht(waitClear + waitPay) + ' บาท (' + pct(waitClear + waitPay) + '% ของวงเงิน)') + '</p></div>' +
+        '<i class="pend" style="--p:' + pct(waitClear) + '%"></i><i class="iss" style="--p:' + pct(waitPay) + '%"></i>' +
+        (w.adjusted < 0 ? '<i class="adj" style="--p:' + pct(-w.adjusted) + '%"></i>' : '') + '</div>' +
+      '<p class="muted sum-note">' + (w.balance < 0 ? 'ผู้รักษาเงินสดย่อยสำรองจ่ายเกินวงเงิน ' + baht(-w.balance) + ' บาท' : 'ใช้ไป ' + baht(waitClear + waitPay) + ' บาท (' + pct(waitClear + waitPay) + '% ของวงเงิน)') + '</p>' +
+      ((w.adjusted || w.interest_held) ? '<div class="sum-extra">' +
+        (w.adjusted ? '<span class="tag">รวมปรับยอด ' + signed(w.adjusted) + ' บาท</span>' : '') +
+        (w.interest_held > 0 ? '<span class="tag warn">ดอกเบี้ยรอโอนคืนบริษัท ' + baht(w.interest_held) + ' บาท</span>' : '') + '</div>' : '') + '</div>' +
 
       '<div class="card"><div class="card-head"><h3 class="grow">รายการรอเคลียร์<span class="count">' + pending.length + ' รายการ</span></h3>' +
       '<button type="button" id="btnVoucher">' + ICON.doc + 'ขอเลขที่ใบเบิก (DocGen)</button></div>' +
@@ -517,9 +568,30 @@ tr[hidden] { display: none !important; }
       (cl ? '<div class="filters">' + searchBox('cl', 'ค้นหาเลขที่ หมายเหตุ ยอด') + chips('cl', CL_FILTERS, clGroups) + '</div>' +
         '<div class="scroll" data-list="cl"><table class="stack"><thead><tr><th>วันที่</th><th>เลขที่</th><th>หมายเหตุ</th><th class="num">ยอด</th><th>สถานะ</th><th></th></tr></thead><tbody>' + cl + '</tbody></table></div>' +
         '<div class="empty" data-none="cl" hidden><b>ไม่พบใบเคลียร์</b>ลองเปลี่ยนตัวกรองหรือคำค้นหา</div>'
-        : '<div class="empty"><b>ยังไม่มีใบเคลียร์</b>ติ๊กรายการด้านบนแล้วกด "ออกใบเคลียร์"</div>') + '</div>';
+        : '<div class="empty"><b>ยังไม่มีใบเคลียร์</b>ติ๊กรายการด้านบนแล้วกด "ออกใบเคลียร์"</div>') + '</div>' +
+
+      '<div class="card"><div class="card-head"><h3 class="grow">ปรับยอด<span class="count">' + S.adjustments.length + ' รายการ</span></h3>' +
+      (setter ? '<button type="button" id="btnAdjust">' + ICON.plus + 'ปรับยอด</button>' : '') + '</div>' +
+      (S.adjustments.length ? '<div class="scroll"><table class="stack"><thead><tr><th>วันที่</th><th>ประเภท</th><th>เหตุผล</th><th class="num">ยอด</th><th>โดย</th><th></th></tr></thead><tbody>' +
+        S.adjustments.map(function (a) {
+          var v = !!a.voided_at;
+          return '<tr' + (v ? ' class="adj-void"' : '') + '><td data-label="วันที่">' + dmy(a.created_at) + '</td><td data-label="ประเภท">' + esc(ADJ[a.kind] || a.kind) + '</td>' +
+            '<td class="full">' + esc(a.reason) + (v ? ' <span class="tag">ยกเลิกแล้ว · ' + esc(a.voided_by || '') + '</span>' : '') + '</td>' +
+            '<td data-label="ยอด" class="num amt ' + (v ? '' : Number(a.amount) > 0 ? 'plus' : 'minus') + '">' + signed(a.amount) + '</td>' +
+            '<td data-label="โดย" class="muted">' + esc(a.created_by) + '</td>' +
+            '<td class="act">' + (setter && !v ? '<button type="button" class="sm danger" data-unadj="' + a.id + '">ยกเลิก</button>' : '') + '</td></tr>';
+        }).join('') + '</tbody></table></div>'
+        : '<div class="empty"><b>ยังไม่มีการปรับยอด</b>' + (setter ? 'กด "ปรับยอด" เมื่อเงินในมือเปลี่ยนโดยไม่ใช่รายการจ่าย เช่น ยอดยกมา หรือดอกเบี้ย' : 'ผู้ตั้งกระเป๋าปรับยอดได้ เช่น ยอดยกมา หรือดอกเบี้ย') + '</div>') + '</div>';
 
     document.getElementById('btnBack').onclick = home;
+    if (setter) document.getElementById('btnAdjust').onclick = adjustForm;
+    app.querySelectorAll('[data-unadj]').forEach(function (b) {
+      b.onclick = function () {
+        var a = S.adjustments.find(function (x) { return x.id === Number(b.dataset.unadj); });
+        if (!confirm('ยกเลิกการปรับยอด ' + signed(a.amount) + ' บาท (' + (ADJ[a.kind] || a.kind) + ')? ผู้รักษาเงินสดย่อยจะได้รับแจ้งทาง LINE')) return;
+        api('adjust_void', { id: a.id }).then(function () { toast('ยกเลิกการปรับยอดแล้ว'); refresh(); }).catch(fail);
+      };
+    });
     document.getElementById('btnVoucher').onclick = function () { openDocgen(VOUCHER_FORM); };
     document.getElementById('btnClearingNo').onclick = function () { openDocgen(CLEARING_FORM); };
     app.querySelectorAll('[data-chip]').forEach(function (b) { b.onclick = function () { S.f[b.dataset.chip] = b.dataset.v; applyFilter(b.dataset.chip); }; });
