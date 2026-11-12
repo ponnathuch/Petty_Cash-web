@@ -514,9 +514,10 @@ tr[hidden] { display: none !important; }
       var photos = (p.pc_photos || []).slice().sort(function (a, b) { return a.sort - b.sort; });
       var g = ['all', p.status === 'awaiting' ? 'awaiting' : '', p.voucher_no ? '' : 'novoucher', (p.flags || []).length ? 'flag' : '', p.note ? 'noted' : ''].filter(Boolean).join(' ');
       payGroups.push(g);
-      var q = [p.description, p.voucher_no, p.branch_code, p.note, baht(p.amount), dmy(p.ai_date || p.created_at)].join(' ').toLowerCase();
+      var q = [p.description, p.voucher_no, p.branch_code, p.note, baht(p.amount), dmy(p.ai_date || p.created_at), dmy(p.created_at)].join(' ').toLowerCase();
       return '<tr data-g="' + g + '" data-q="' + esc(q) + '"' + (S.sel[p.id] ? ' class="on"' : '') + '><td class="sel">' + (p.status === 'pending' ? '<input type="checkbox" data-sel="' + p.id + '"' + (S.sel[p.id] ? ' checked' : '') + ' aria-label="เลือกรายการ">' : '<span class="tag warn">รอยืนยัน</span>') + '</td>' +
-        '<td data-label="ว/ด/ป">' + dmy(p.ai_date || p.created_at) + '</td>' +
+        '<td data-label="วันที่จ่าย">' + dmy(p.ai_date || p.created_at) + '</td>' +
+        '<td data-label="วันที่แจ้ง" class="muted">' + dmy(p.created_at) + '</td>' +
         '<td class="full"><div class="desc">' + esc(p.description) + '</div>' + ((p.branch_code || (p.flags || []).length || p.photo_pending) ? '<div>' +
           (p.branch_code ? '<span class="tag">' + esc(p.branch_code) + '</span>' : '') +
           (p.flags || []).map(function (f) { return FLAG[f] ? '<span class="tag ' + FLAG[f][1] + '">' + FLAG[f][0] + '</span>' : ''; }).join('') +
@@ -560,7 +561,7 @@ tr[hidden] { display: none !important; }
       '<div class="card"><div class="card-head"><h3 class="grow">รายการรอเคลียร์<span class="count">' + pending.length + ' รายการ</span></h3>' +
       '<button type="button" id="btnVoucher">' + ICON.doc + 'ขอเลขที่ใบเบิก (DocGen)</button></div>' +
       (rows ? '<div class="filters">' + searchBox('pay', 'ค้นหารายการ เลขที่ใบเบิก สาขา หมายเหตุ') + chips('pay', PAY_FILTERS, payGroups) + '</div>' +
-        '<div class="scroll" data-list="pay"><table class="stack"><thead><tr><th><input type="checkbox" id="selAll" aria-label="เลือกทุกรายการที่แสดง"></th><th>ว/ด/ป</th><th>รายการ</th><th>หลักฐาน</th><th>เลขที่ใบเบิกค่าใช้จ่าย</th><th class="num">จำนวนเงิน</th><th>รูป</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        '<div class="scroll" data-list="pay"><table class="stack"><thead><tr><th><input type="checkbox" id="selAll" aria-label="เลือกทุกรายการที่แสดง"></th><th>วันที่จ่าย</th><th>วันที่แจ้ง</th><th>รายการ</th><th>หลักฐาน</th><th>เลขที่ใบเบิกค่าใช้จ่าย</th><th class="num">จำนวนเงิน</th><th>รูป</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
         '<div class="empty" data-none="pay" hidden><b>ไม่พบรายการ</b>ลองเปลี่ยนตัวกรองหรือคำค้นหา</div>'
         : '<div class="empty"><b>ไม่มีรายการรอเคลียร์</b>รายการใหม่จะเข้ามาเมื่อผู้รักษาเงินสดย่อยสั่ง "จ่าย" ในกลุ่ม LINE</div>') +
       '<div class="selbar"><span id="selSum" class="grow"></span><button type="button" class="primary" id="btnClear">ออกใบเคลียร์</button></div></div>' +
