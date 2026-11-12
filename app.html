@@ -18,7 +18,7 @@
   --sh-2: 0 12px 32px rgba(16, 40, 30, .16);
   --s-1: 4px; --s-2: 6px; --s-3: 8px; --s-4: 12px; --s-5: 16px; --s-6: 20px; --s-7: 24px; --s-8: 32px;
   --s-thumb: 44px; --s-avatar-lg: 48px; --s-bar-lg: 12px; --w-search: 260px; --c-iss: #4f7fbf; --c-chip-count: rgba(255, 255, 255, .2); --s-mark: 34px; --s-avatar: 30px; --s-bar: 8px; --s-tap: 40px; --s-tap-sm: 32px; --s-input-cell: 36px; --s-ring: 3px; --s-icon: 18px;
-  --w-page: 1200px; --w-dialog: 540px; --w-wcard: 280px; --w-kpi: 180px; --w-check: 20px;
+  --w-page: 1200px; --w-dialog: 540px; --w-dialog-wide: 820px; --w-wcard: 280px; --w-kpi: 180px; --w-check: 20px;
   --t-xs: 11px; --t-sm: 13px; --t-base: 15px; --t-lg: 18px; --t-xl: 22px; --t-2xl: 28px; --t-tag: 12px; --s-print-cell: 3px;
   --c-print-ink: #000000; --c-print-bg: #ffffff;
   --r-sm: 8px; --r: 12px; --r-lg: 16px; --r-pill: 999px; --gap: 12px;
@@ -61,7 +61,8 @@ button.danger { color: var(--c-bad); border-color: var(--c-line-strong); }
 button.danger:hover { background: var(--c-bad-soft); border-color: var(--c-bad); }
 button.ghost { border-color: transparent; background: transparent; color: var(--c-ink-2); }
 button.ghost:hover { background: var(--c-surface-2); color: var(--c-ink); }
-button.sm { min-height: var(--s-tap-sm); padding: 0 var(--s-3); }
+button { vertical-align: middle; }
+button.sm { min-height: var(--s-tap-sm); height: var(--s-tap-sm); padding: 0 var(--s-3); }
 button:disabled, button:disabled:hover { opacity: .45; cursor: not-allowed; background: var(--c-surface); }
 button.primary:disabled, button.primary:disabled:hover { background: var(--c-brand); }
 input, select { font: inherit; min-height: var(--s-tap); padding: var(--s-2) var(--s-4); border: 1px solid var(--c-line-strong); border-radius: var(--r-sm); width: 100%; background: var(--c-surface); color: var(--c-ink); margin-top: var(--s-1); }
@@ -146,6 +147,7 @@ td input { margin: 0; min-height: var(--s-input-cell); }
 .selbar #selSum:empty::before { content: "ติ๊กรายการที่จะรวมเป็นใบเคลียร์"; opacity: .7; }
 
 dialog { border: 0; border-radius: var(--r-lg); padding: var(--s-7); width: min(var(--w-dialog), 94vw); box-shadow: var(--sh-2); color: var(--c-ink); }
+dialog.wide { width: min(var(--w-dialog-wide), 94vw); }
 dialog::backdrop { background: var(--c-scrim); }
 dialog h3 { font-size: var(--t-xl); margin-bottom: var(--s-2); }
 dialog .note { background: var(--c-surface-2); border: 1px solid var(--c-line); border-radius: var(--r-sm); padding: var(--s-3) var(--s-4); margin: var(--s-3) 0 0; }
@@ -238,6 +240,18 @@ tr[hidden] { display: none !important; }
   .page .photo { height: 120mm; display: flex; flex-direction: column; align-items: center; justify-content: center; }
   .page .photo img { max-height: 110mm; max-width: 100%; }
 }
+/* ds-allow-hardcode: F-AC#101 is the company's fixed A4 form; data sits on the original artwork at its PDF coordinates (pt) */
+@page { size: A4; margin: 0; }
+@media print {
+  .form { position: relative; width: 595.32pt; height: 841.92pt; overflow: hidden; page-break-after: always; color: var(--c-print-ink); font-size: 7.5pt; }
+  .form:last-child { page-break-after: auto; }
+  .form > img { position: absolute; left: 0; top: 0; width: 595.32pt; height: 841.92pt; }
+  .form .f { position: absolute; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .form .f.c { text-align: center; } .form .f.r { text-align: right; padding-right: 3pt; } .form .f.l { padding-left: 3pt; }
+  .form .tick { position: absolute; left: 33pt; top: 101.8pt; width: 10.5pt; height: 8.9pt; }
+  .form .pg { position: absolute; left: 24.6pt; top: 812.3pt; font-size: 7pt; }
+}
+/* end ds-allow-hardcode */
 </style>
 </head>
 <body>
@@ -253,7 +267,7 @@ tr[hidden] { display: none !important; }
   var STORE_KEY = 'pc-session';
   var VOUCHER_FORM = 'F-AC#103'; // DocGen form for each expense voucher (เบิกค่าใช้จ่าย)
   var CLEARING_FORM = 'F-AC#101';
-  var ROWS_PER_PAGE = 30;
+  var ROWS_PER_PAGE = 27; // rows printed on F-AC#101
   var PHOTO_CONCURRENCY = 4; // each photo is a Job Tracker (Apps Script) call; GAS throttles many at once
   var S = { sess: null, staff: null, wallets: [], wallet: null, payments: [], clearings: [], settings: {}, sel: {}, f: { pay: 'all', payQ: '', cl: 'all', clQ: '' } };
   var app = document.getElementById('app');
@@ -465,7 +479,8 @@ tr[hidden] { display: none !important; }
 
   // filter groups: each row carries data-g (space-separated groups) and data-q (search text)
   var PAY_FILTERS = [['all', 'ทั้งหมด'], ['novoucher', 'ยังไม่มีเลขใบเบิก'], ['flag', 'ต้องตรวจ'], ['awaiting', 'รอยืนยัน'], ['noted', 'มีหมายเหตุ']];
-  var CL_FILTERS = [['all', 'ทั้งหมด'], ['issued', 'รอโอน'], ['reimbursed', 'โอนแล้ว']];
+  var CL_FILTERS = [['all', 'ทั้งหมด'], ['issued', 'รอโอน'], ['reimbursed', 'โอนแล้ว'], ['cancelled', 'ยกเลิก']];
+  var CL_TAG = { issued: '<span class="tag warn">รอโอน</span>', reimbursed: '<span class="tag ok">โอนแล้ว</span>', cancelled: '<span class="tag">ยกเลิกแล้ว</span>' };
   function chips(key, list, rows) {
     return '<div class="chips" role="group" aria-label="กรองรายการ">' + list.map(function (f) {
       var n = f[0] === 'all' ? rows.length : rows.filter(function (g) { return g.indexOf(f[0]) !== -1; }).length;
@@ -504,7 +519,7 @@ tr[hidden] { display: none !important; }
     var pending = S.payments.filter(function (p) { return p.status === 'pending' || p.status === 'awaiting'; });
     var sumOf = function (xs, k) { return xs.reduce(function (s, x) { return s + Number(x[k] || 0); }, 0); };
     var waitClear = sumOf(pending.filter(function (p) { return p.status === 'pending'; }), 'amount');
-    var waitPay = sumOf(S.clearings.filter(function (c) { return c.status !== 'reimbursed'; }), 'total');
+    var waitPay = sumOf(S.clearings.filter(function (c) { return c.status === 'issued'; }), 'total');
     var limit = Number(w.limit_amount) || 0;
     var pct = function (v) { return limit > 0 ? Math.max(0, Math.min(100, v / limit * 100)).toFixed(1) : 0; };
     var low = w.balance >= 0 && limit > 0 && w.balance / limit * 100 < Number(S.settings.low_pct || 20);
@@ -531,14 +546,19 @@ tr[hidden] { display: none !important; }
     }).join('');
     var clGroups = [];
     var cl = S.clearings.map(function (c) {
-      var g = 'all ' + (c.status === 'reimbursed' ? 'reimbursed' : 'issued');
+      var st = c.status === 'cancelled' ? 'cancelled' : c.status === 'reimbursed' ? 'reimbursed' : 'issued';
+      var g = 'all ' + st;
       clGroups.push(g);
+      var n = S.payments.filter(function (p) { return p.clearing_id === c.id; }).length;
       var q = [c.doc_no, c.note, baht(c.total), dmy(c.created_at)].join(' ').toLowerCase();
-      return '<tr data-g="' + g + '" data-q="' + esc(q) + '"><td data-label="วันที่">' + dmy(c.created_at) + '</td>' +
-        '<td class="full"><input data-doc="' + c.id + '" value="' + esc(c.doc_no || '') + '" placeholder="วางเลขที่ใบเคลียร์" aria-label="เลขที่ใบเคลียร์"></td>' +
-        '<td class="full"><input data-cnote="' + c.id + '" value="' + esc(c.note || '') + '" placeholder="หมายเหตุ" aria-label="หมายเหตุใบเคลียร์" maxlength="500"></td>' +
-        '<td data-label="ยอด" class="num amt">' + baht(c.total) + '</td><td>' + (c.status === 'reimbursed' ? '<span class="tag ok">โอนแล้ว</span>' : '<span class="tag warn">รอโอน</span>') + '</td>' +
-        '<td class="act"><button type="button" class="sm" data-print="' + c.id + '">' + ICON.print + 'พิมพ์</button>' + (c.status !== 'reimbursed' ? '<button type="button" class="sm primary" data-paid="' + c.id + '">โอนแล้ว</button>' : '') + '</td></tr>';
+      var off = st === 'cancelled' ? ' disabled' : '';
+      return '<tr data-g="' + g + '" data-q="' + esc(q) + '"' + (off ? ' class="adj-void"' : '') + '><td data-label="วันที่">' + dmy(c.created_at) + '</td>' +
+        '<td class="full"><input data-doc="' + c.id + '" value="' + esc(c.doc_no || '') + '" placeholder="วางเลขที่ใบเคลียร์" aria-label="เลขที่ใบเคลียร์"' + off + '></td>' +
+        '<td class="full"><input data-cnote="' + c.id + '" value="' + esc(c.note || '') + '" placeholder="หมายเหตุ" aria-label="หมายเหตุใบเคลียร์" maxlength="500"' + off + '></td>' +
+        '<td data-label="ยอด" class="num amt">' + baht(c.total) + '</td><td>' + CL_TAG[st] + '</td>' +
+        '<td class="act"><button type="button" class="sm" data-cview="' + c.id + '">' + (st === 'cancelled' ? 'ดูเหตุผล' : 'ดูรายการ (' + n + ')') + '</button>' +
+          (st !== 'cancelled' ? '<button type="button" class="sm" data-print="' + c.id + '">' + ICON.print + 'พิมพ์</button>' : '') +
+          (st === 'issued' ? '<button type="button" class="sm primary" data-paid="' + c.id + '">โอนแล้ว</button>' : '') + '</td></tr>';
     }).join('');
 
     app.innerHTML = '<button type="button" class="ghost back" id="btnBack">' + ICON.back + 'กระเป๋าทั้งหมด</button>' +
@@ -634,6 +654,7 @@ tr[hidden] { display: none !important; }
       };
     });
     app.querySelectorAll('[data-print]').forEach(function (b) { b.onclick = function () { printClearing(Number(b.dataset.print)); }; });
+    app.querySelectorAll('[data-cview]').forEach(function (b) { b.onclick = function () { clearingView(Number(b.dataset.cview)); }; });
     document.getElementById('btnClear').onclick = createClearing;
     if (rows) applyFilter('pay');
     if (cl) applyFilter('cl');
@@ -675,6 +696,33 @@ tr[hidden] { display: none !important; }
     }).catch(fail);
   }
 
+  // what a clearing is made of; a wrong one is cancelled here and its items go back to the pending list
+  function clearingView(id) {
+    var c = S.clearings.find(function (x) { return x.id === id; });
+    var items = S.payments.filter(function (p) { return p.clearing_id === id; });
+    var head = '<h3>ใบเคลียร์ ' + esc(c.doc_no || '(ยังไม่มีเลขที่)') + '</h3><p class="muted">ออกเมื่อ ' + dmy(c.created_at) + ' · ' + CL_TAG[c.status === 'cancelled' ? 'cancelled' : c.status === 'reimbursed' ? 'reimbursed' : 'issued'] + '</p>';
+    if (c.status === 'cancelled') {
+      dialog(head + '<p class="note">ยกเลิกเมื่อ ' + dmy(c.cancelled_at) + ' โดย ' + esc(c.cancelled_by || '-') + '<br>เหตุผล: ' + esc(c.cancel_reason || '-') + '<br>ยอด ' + baht(c.total) + ' บาท รายการทั้งหมดกลับไปอยู่ที่ "รายการรอเคลียร์" แล้ว</p>' +
+        '<div class="foot"><span class="grow"></span><button type="button" data-close>ปิด</button></div>');
+      return;
+    }
+    dialog(head + '<div class="scroll"><table><thead><tr><th>ลำดับ</th><th>วันที่จ่าย</th><th>เลขที่ใบเบิก</th><th>รายการ</th><th>หลักฐาน</th><th class="num">จำนวนเงิน</th></tr></thead><tbody>' +
+      items.map(function (p, k) {
+        return '<tr><td>' + (k + 1) + '</td><td>' + dmy(p.ai_date || p.created_at) + '</td><td>' + esc(p.voucher_no || '-') + '</td><td>' + esc(p.description) + '</td><td class="muted">' + esc(EVIDENCE[p.evidence_type] || '-') + '</td><td class="num amt">' + baht(p.amount) + '</td></tr>';
+      }).join('') +
+      '<tr><td colspan="5"><b>รวม ' + items.length + ' รายการ</b></td><td class="num amt"><b>' + baht(c.total) + '</b></td></tr></tbody></table></div>' +
+      '<div class="foot">' + (c.status === 'issued' ? '<button type="button" class="danger" id="cCancel">ยกเลิกใบเคลียร์</button>' : '<span class="muted">โอนแล้ว ยกเลิกไม่ได้</span>') +
+      '<span class="grow"></span><button type="button" data-close>ปิด</button><button type="button" class="primary" id="cPrint">' + ICON.print + 'พิมพ์</button></div>', true);
+    document.getElementById('cPrint').onclick = function () { closeDialog(); printClearing(id); };
+    var x = document.getElementById('cCancel');
+    if (x) x.onclick = function () {
+      var reason = prompt('เหตุผลที่ยกเลิกใบเคลียร์นี้ (รายการทั้ง ' + items.length + ' รายการจะกลับไปที่ "รายการรอเคลียร์" ให้เลือกใหม่ได้)');
+      if (reason === null) return;
+      if (!reason.trim()) { toast('กรุณาระบุเหตุผลที่ยกเลิก'); return; }
+      api('clearing_cancel', { id: id, reason: reason }).then(function () { closeDialog(); toast('ยกเลิกใบเคลียร์แล้ว รายการกลับไปรอเคลียร์'); refreshAll(); }).catch(fail);
+    };
+  }
+
   // ---------- F-AC#101 print view ----------
   function printClearing(id) {
     var c = S.clearings.find(function (x) { return x.id === id; });
@@ -684,24 +732,32 @@ tr[hidden] { display: none !important; }
     for (var i = 0; i < Math.max(items.length, 1); i += ROWS_PER_PAGE) pages.push(items.slice(i, i + ROWS_PER_PAGE));
     var sum = function (t) { return items.filter(function (p) { return t === null ? true : p.evidence_type === t; }).reduce(function (s, p) { return s + Number(p.amount); }, 0); };
     var cell = function (p, t) { return p.evidence_type === t ? baht(p.amount) : '-'; };
+    // F-AC#101 V.001-11-2024: the original artwork (fac101.svg, from the company PDF) with the data placed at its PDF coordinates in pt
+    var put = function (x, y, w, h, text, cls) {
+      return '<span class="f ' + (cls || '') + '" style="left:' + x + 'pt;top:' + y + 'pt;width:' + w + 'pt;height:' + h + 'pt;line-height:' + h + 'pt">' + esc(text) + '</span>';
+    };
+    var COLS = [[24.4, 28.3, 'c'], [53.2, 76.8, 'c'], [130.5, 76.8, 'c'], [207.8, 151.6, 'l'], [359.8, 77.3, 'r'], [437.6, 60.5, 'r'], [498.6, 49.8, 'r']];
+    var ROW_TOP = 184.6, ROW_H = (592.6 - 184.6) / ROWS_PER_PAGE;
+    // header values sit 2pt above the form's dotted lines so the dots stay visible
+    var docNo = String(c.doc_no || '').replace(/^F-AC#101\//, '');
     var html = pages.map(function (rows, pi) {
       var last = pi === pages.length - 1;
-      return '<div class="page"><div class="head"><div><b>ICARE HEALTH</b><br>บริษัท ไอแคร์ เฮลท์ จำกัด</div><div>ใบเคลียร์เงินทดรองจ่าย/ใบเบิกชดเชยเงินสดย่อย</div></div>' +
-        '<div class="head"><div><span class="box"></span>เคลียร์เงินทดรองจ่าย<br><span class="box">/</span>เบิกชดเชยเงินสดย่อย &nbsp; ผู้รักษาเงินสดย่อย</div>' +
-        '<div>เลขที่ ' + esc(c.doc_no || '................') + '<br>วันที่ ' + dmy(c.created_at) + '</div></div>' +
-        '<div>วงเงินสดย่อย ' + baht(w.limit_amount) + ' บาท</div>' +
-        '<div>ชื่อพนักงานผู้ขอเบิก ' + esc(w.custodian_name) + ' &nbsp; รหัสพนักงาน(ผู้ขอเบิก) ' + esc(w.employee_code || '') + '</div>' +
-        '<table><thead><tr><th rowspan="2">ลำดับ</th><th rowspan="2">ว/ด/ป</th><th rowspan="2">เลขที่ใบเบิกค่าใช้จ่าย</th><th rowspan="2">รายการ</th><th colspan="2">จำนวนเงิน (บาท)</th><th rowspan="2">รวม(บาท)</th></tr>' +
-        '<tr><th>ใบกำกับภาษี/ใบเสร็จ</th><th>ใบแทนใบเสร็จ</th></tr></thead><tbody>' +
+      return '<div class="form"><img alt="" src="fac101.svg">' +
+        '<svg class="tick" viewBox="0 0 10 9" aria-hidden="true"><path d="M2 4.6l2.2 2.4L8.4 1.8" fill="none" stroke="currentColor" stroke-width="1.1"/></svg>' +
+        put(489, 82.5, 89, 10.9, docNo) + put(262, 98, 93, 10.9, w.custodian_name) + put(456, 98.7, 118, 10.9, dmy(c.created_at)) +
+        put(97, 116.7, 76, 10.9, baht(w.limit_amount), 'c') +
+        put(84, 135.7, 90, 10.9, w.custodian_name) + put(241, 135.7, 108, 10.9, w.employee_code || '') +
         rows.map(function (p, k) {
-          return '<tr><td>' + (pi * ROWS_PER_PAGE + k + 1) + '</td><td>' + dmy(p.ai_date || p.created_at) + '</td><td>' + esc(p.voucher_no) + '</td><td>' + esc(p.description) + '</td>' +
-            '<td class="num">' + cell(p, 'receipt') + '</td><td class="num">' + cell(p, 'substitute') + '</td><td class="num">' + baht(p.amount) + '</td></tr>';
+          var y = ROW_TOP + k * ROW_H;
+          return [pi * ROWS_PER_PAGE + k + 1, dmy(p.ai_date || p.created_at), p.voucher_no, p.description,
+            cell(p, 'receipt'), cell(p, 'substitute'), baht(p.amount)]
+            .map(function (v, i) { return put(COLS[i][0], y, COLS[i][1], ROW_H, v, COLS[i][2]); }).join('');
         }).join('') +
-        (last ? '<tr><td colspan="4" style="text-align:center">ค่าใช้จ่ายทั้งหมด</td><td class="num">' + (sum('receipt') ? baht(sum('receipt')) : '-') + '</td><td class="num">' + (sum('substitute') ? baht(sum('substitute')) : '-') + '</td><td class="num">' + baht(sum(null)) + '</td></tr>' +
-          '<tr><td colspan="6">ยอดเบิกเงินทดรองจ่าย/เงินสดย่อย</td><td class="num">' + baht(sum(null)) + '</td></tr>' : '') +
-        '</tbody></table>' +
-        (last ? '<div class="sign"><div>..............................<br>ผู้เบิกเงินทดรองจ่าย/ผู้รักษาเงินสดย่อย<br>....../....../......</div><div>..............................<br>ผู้ตรวจสอบ<br>....../....../......</div><div>..............................<br>ผู้อนุมัติ<br>....../....../......</div></div>' : '') +
-        '<div class="muted" style="text-align:right">' + CLEARING_FORM + ' คืนเงินทดรองจ่าย-เบิกชดเชยเงินสดย่อย · หน้า ' + (pi + 1) + '/' + pages.length + '</div></div>';
+        (last ? put(COLS[4][0], 592.6, COLS[4][1], 15.3, sum('receipt') ? baht(sum('receipt')) : '-', 'r') +
+          put(COLS[5][0], 592.6, COLS[5][1], 15.3, sum('substitute') ? baht(sum('substitute')) : '-', 'r') +
+          put(COLS[6][0], 592.6, COLS[6][1], 15.3, baht(sum(null)), 'r') +
+          put(COLS[6][0], 607.9, COLS[6][1], 16.6, baht(sum(null)), 'r') : '') +
+        (pages.length > 1 ? '<span class="pg">หน้า ' + (pi + 1) + '/' + pages.length + '</span>' : '') + '</div>';
     }).join('');
     // evidence photos in row order, two per page
     var photos = [];
@@ -709,9 +765,10 @@ tr[hidden] { display: none !important; }
       (p.pc_photos || []).slice().sort(function (a, b) { return a.sort - b.sort; }).forEach(function (ph) { photos.push({ id: ph.id, label: 'ลำดับ ' + (k + 1) + ' · ' + (p.voucher_no || '') + ' · ' + baht(p.amount) + ' บาท' }); });
     });
     toast(photos.length ? 'กำลังโหลดรูปหลักฐาน ' + photos.length + ' รูป…' : 'กำลังเตรียมพิมพ์…');
+    var art = new Promise(function (ok) { var im = new Image(); im.onload = im.onerror = ok; im.src = 'fac101.svg'; });
     Promise.all(photos.map(function (ph) {
       return photo(ph.id).then(function (src) { ph.src = src; }).catch(function () { ph.src = ''; });
-    })).then(function () {
+    }).concat([art])).then(function () {
       var failed = photos.filter(function (ph) { return !ph.src; }).length;
       if (failed && !confirm('โหลดรูปไม่ได้ ' + failed + ' รูป จะพิมพ์ใบเคลียร์โดยไม่มีรูปเหล่านั้นไหม')) return;
       for (var i = 0; i < photos.length; i += 2) {
@@ -726,9 +783,10 @@ tr[hidden] { display: none !important; }
 
   // ---------- helpers ----------
   function val(id) { return String(document.getElementById(id).value || '').trim(); }
-  function dialog(inner) {
+  function dialog(inner, wide) {
     var d = document.getElementById('dlg');
     d.innerHTML = inner;
+    d.classList.toggle('wide', !!wide);
     d.querySelectorAll('[data-close]').forEach(function (b) { b.onclick = closeDialog; });
     if (!d.open) d.showModal();
   }
