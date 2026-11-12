@@ -115,7 +115,7 @@ label { display: block; font-size: var(--t-sm); font-weight: 600; color: var(--c
 .hero .meter { grid-column: 1 / -1; }
 .count { font-size: var(--t-sm); color: var(--c-ink-3); font-weight: 400; margin-left: var(--s-2); }
 
-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
 th, td { text-align: left; padding: var(--s-4) var(--s-3); border-bottom: 1px solid var(--c-line); vertical-align: middle; }
 thead th { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .03em; color: var(--c-ink-3); font-weight: 600; background: var(--c-surface-2); border-bottom: 1px solid var(--c-line); }
 thead th:first-child { border-top-left-radius: var(--r-sm); }
@@ -264,7 +264,8 @@ tr[hidden] { display: none !important; }
     if (!iso) return '';
     var d = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(iso + 'T00:00:00+07:00') : new Date(iso);
     var b = new Date(d.getTime() + 7 * 3600 * 1000);
-    return b.getUTCDate() + '/' + (b.getUTCMonth() + 1) + '/' + b.getUTCFullYear();
+    var two = function (n) { return (n < 10 ? '0' : '') + n; }; // fixed width so dates line up in columns
+    return two(b.getUTCDate()) + '/' + two(b.getUTCMonth() + 1) + '/' + b.getUTCFullYear();
   }
   function svg(d) { return '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; }
   var ICON = {
