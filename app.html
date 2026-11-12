@@ -17,7 +17,7 @@
   --sh-1: 0 1px 2px rgba(16, 40, 30, .05), 0 1px 3px rgba(16, 40, 30, .07);
   --sh-2: 0 12px 32px rgba(16, 40, 30, .16);
   --s-1: 4px; --s-2: 6px; --s-3: 8px; --s-4: 12px; --s-5: 16px; --s-6: 20px; --s-7: 24px; --s-8: 32px;
-  --s-thumb: 44px; --s-mark: 34px; --s-avatar: 30px; --s-bar: 8px; --s-tap: 40px; --s-tap-sm: 32px; --s-input-cell: 36px; --s-ring: 3px; --s-icon: 18px;
+  --s-thumb: 44px; --s-avatar-lg: 48px; --s-bar-lg: 12px; --w-search: 260px; --c-iss: #4f7fbf; --c-chip-count: rgba(255, 255, 255, .2); --s-mark: 34px; --s-avatar: 30px; --s-bar: 8px; --s-tap: 40px; --s-tap-sm: 32px; --s-input-cell: 36px; --s-ring: 3px; --s-icon: 18px;
   --w-page: 1200px; --w-dialog: 540px; --w-wcard: 280px; --w-kpi: 180px; --w-check: 20px;
   --t-xs: 11px; --t-sm: 13px; --t-base: 15px; --t-lg: 18px; --t-xl: 22px; --t-2xl: 28px; --t-tag: 12px; --s-print-cell: 3px;
   --c-print-ink: #000000; --c-print-bg: #ffffff;
@@ -155,6 +155,47 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
 #print { display: none; }
 .mt { margin-top: var(--s-4); }
 
+/* wallet summary */
+.summary { display: grid; gap: var(--s-5); }
+.sum-id { display: flex; gap: var(--s-4); align-items: center; }
+.sum-id p { margin: 0; }
+.avatar.lg { width: var(--s-avatar-lg); height: var(--s-avatar-lg); font-size: var(--t-xl); flex: none; }
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); }
+.tile { background: var(--c-surface-2); border: 1px solid var(--c-line); border-radius: var(--r); padding: var(--s-4) var(--s-5); }
+.tile span { display: flex; align-items: center; gap: var(--s-2); font-size: var(--t-sm); color: var(--c-ink-2); }
+.tile b { display: block; font-size: var(--t-xl); font-variant-numeric: tabular-nums; margin-top: var(--s-1); }
+.tile.hl { background: var(--c-brand); border-color: var(--c-brand); }
+.tile.hl span, .tile.hl b { color: var(--c-on-brand); }
+.tile.hl b { font-size: var(--t-2xl); line-height: 1.2; }
+.tile.hl.low { background: var(--c-warn-soft); border-color: var(--c-warn-bar); }
+.tile.hl.low span, .tile.hl.low b { color: var(--c-warn); }
+.tile.hl.neg { background: var(--c-bad-soft); border-color: var(--c-bad); }
+.tile.hl.neg span, .tile.hl.neg b { color: var(--c-bad); }
+.dot { width: var(--s-3); height: var(--s-3); border-radius: var(--r-pill); display: inline-block; }
+.dot.pend, .stackbar .pend { background: var(--c-warn-bar); }
+.dot.iss, .stackbar .iss { background: var(--c-iss); }
+.stackbar { display: flex; height: var(--s-bar-lg); border-radius: var(--r-pill); background: var(--c-brand); overflow: hidden; }
+.stackbar i { display: block; width: var(--p); }
+.sum-note { margin: calc(var(--s-3) * -1) 0 0; }
+
+/* filters */
+.filters { display: flex; gap: var(--s-3) var(--s-4); flex-wrap: wrap; align-items: center; margin-bottom: var(--s-4); }
+.search { position: relative; flex: 1 1 var(--w-search); margin: 0; font-weight: 400; }
+.search svg { position: absolute; left: var(--s-4); top: 50%; transform: translateY(-50%); color: var(--c-ink-3); }
+.search input { margin: 0; padding-left: var(--s-8); border-radius: var(--r-pill); background: var(--c-surface-2); }
+.search input:focus { background: var(--c-surface); }
+.chips { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+.chip { min-height: var(--s-tap-sm); border-radius: var(--r-pill); padding: 0 var(--s-4); font-weight: 600; color: var(--c-ink-2); }
+.chip span { font-size: var(--t-xs); background: var(--c-surface-2); color: var(--c-ink-2); border-radius: var(--r-pill); padding: 0 var(--s-2); }
+.chip[aria-pressed="true"] { background: var(--c-ink); border-color: var(--c-ink); color: var(--c-surface); }
+.chip[aria-pressed="true"] span { background: var(--c-chip-count); color: var(--c-surface); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.note-line { display: flex; gap: var(--s-2); align-items: flex-start; margin-top: var(--s-2); font-size: var(--t-sm); color: var(--c-ink-2); background: var(--c-warn-soft); border-radius: var(--r-sm); padding: var(--s-1) var(--s-3); }
+.note-line svg { width: var(--s-5); height: var(--s-5); margin-top: var(--s-1); color: var(--c-warn); }
+textarea { font: inherit; width: 100%; padding: var(--s-3) var(--s-4); border: 1px solid var(--c-line-strong); border-radius: var(--r-sm); margin-top: var(--s-1); resize: vertical; color: var(--c-ink); background: var(--c-surface); }
+textarea:focus { border-color: var(--c-brand); outline: none; box-shadow: 0 0 0 var(--s-ring) var(--c-focus); }
+tr[hidden] { display: none !important; }
+
 /* phones: tables become stacked rows, labels come from data-label */
 @media (max-width: 720px) {
   main { padding: var(--s-4) var(--s-3) var(--s-8); }
@@ -162,7 +203,8 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
   .page-head h2 { font-size: var(--t-xl); }
   .page-head > .grow { flex-basis: 100%; }
   .who span { display: none; }
-  .hero { grid-template-columns: 1fr; }
+  .tiles { grid-template-columns: 1fr 1fr; }
+  .tile.hl { grid-column: 1 / -1; }
   .hero .stats { gap: var(--s-5); }
   table.stack thead { display: none; }
   table.stack tr { display: grid; grid-template-columns: auto 1fr; gap: var(--s-1) var(--s-4); padding: var(--s-4) 0; border-bottom: 1px solid var(--c-line); }
@@ -204,7 +246,7 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
   var CLEARING_FORM = 'F-AC#101';
   var ROWS_PER_PAGE = 30;
   var PHOTO_CONCURRENCY = 4; // each photo is a Job Tracker (Apps Script) call; GAS throttles many at once
-  var S = { sess: null, staff: null, wallets: [], wallet: null, payments: [], clearings: [], settings: {}, sel: {} };
+  var S = { sess: null, staff: null, wallets: [], wallet: null, payments: [], clearings: [], settings: {}, sel: {}, f: { pay: 'all', payQ: '', cl: 'all', clQ: '' } };
   var app = document.getElementById('app');
 
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -220,6 +262,8 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
     plus: svg('<path d="M12 5v14M5 12h14"/>'),
     gear: svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
     edit: svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'),
+    search: svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>'),
+    note: svg('<path d="M4 4h16v12H8l-4 4z"/>'),
     back: svg('<path d="M15 18l-6-6 6-6"/>'),
     doc: svg('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/>'),
     print: svg('<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/>')
@@ -355,9 +399,14 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
 
   // ---------- one wallet ----------
   function openWallet(id) {
+    if (!S.wallet || S.wallet.id !== id) S.f = { pay: 'all', payQ: '', cl: 'all', clQ: '' };
     S.wallet = S.wallets.find(function (w) { return w.id === id; });
     S.sel = {};
-    return api('payments', { walletId: id }).then(function (d) {
+    // reload the wallet list too so the summary never shows totals from an older page load
+    return Promise.all([api('payments', { walletId: id }), api('wallets')]).then(function (r) {
+      var d = r[0];
+      S.wallets = r[1].wallets || S.wallets;
+      S.wallet = S.wallets.find(function (w) { return w.id === id; }) || S.wallet;
       S.payments = d.payments || [];
       S.clearings = d.clearings || [];
       renderWallet();
@@ -367,44 +416,123 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
   var FLAG = { mismatch: ['ยอดไม่ตรง', 'warn'], duplicate: ['อาจซ้ำ', 'bad'] };
   var EVIDENCE = { receipt: 'ใบกำกับภาษี/ใบเสร็จ', substitute: 'ใบแทนใบเสร็จ' };
 
+  // filter groups: each row carries data-g (space-separated groups) and data-q (search text)
+  var PAY_FILTERS = [['all', 'ทั้งหมด'], ['novoucher', 'ยังไม่มีเลขใบเบิก'], ['flag', 'ต้องตรวจ'], ['awaiting', 'รอยืนยัน'], ['noted', 'มีหมายเหตุ']];
+  var CL_FILTERS = [['all', 'ทั้งหมด'], ['issued', 'รอโอน'], ['reimbursed', 'โอนแล้ว']];
+  function chips(key, list, rows) {
+    return '<div class="chips" role="group" aria-label="กรองรายการ">' + list.map(function (f) {
+      var n = f[0] === 'all' ? rows.length : rows.filter(function (g) { return g.indexOf(f[0]) !== -1; }).length;
+      return '<button type="button" class="chip" data-chip="' + key + '" data-v="' + f[0] + '" aria-pressed="' + (S.f[key] === f[0]) + '">' + f[1] + '<span>' + n + '</span></button>';
+    }).join('') + '</div>';
+  }
+  function searchBox(key, ph) {
+    return '<label class="search"><span class="sr">ค้นหา</span>' + ICON.search + '<input type="search" data-search="' + key + '" placeholder="' + ph + '" value="' + esc(S.f[key + 'Q']) + '"></label>';
+  }
+  function applyFilter(key) {
+    var g = S.f[key], q = String(S.f[key + 'Q'] || '').trim().toLowerCase(), shown = 0;
+    app.querySelectorAll('[data-list="' + key + '"] tbody tr').forEach(function (tr) {
+      var ok = (g === 'all' || tr.dataset.g.split(' ').indexOf(g) !== -1) && (!q || tr.dataset.q.indexOf(q) !== -1);
+      tr.hidden = !ok;
+      if (ok) shown++;
+    });
+    var none = app.querySelector('[data-none="' + key + '"]');
+    if (none) none.hidden = shown > 0;
+    app.querySelectorAll('[data-chip="' + key + '"]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === g)); });
+    if (key === 'pay') syncAll();
+  }
+  // header checkbox reflects the visible, selectable rows only
+  function syncAll() {
+    var all = document.getElementById('selAll');
+    if (!all) return;
+    var vis = [].filter.call(app.querySelectorAll('[data-sel]'), function (c) { return !c.closest('tr').hidden; });
+    var on = vis.filter(function (c) { return c.checked; }).length;
+    all.checked = vis.length > 0 && on === vis.length;
+    all.indeterminate = on > 0 && on < vis.length;
+    all.disabled = !vis.length;
+  }
+
   function renderWallet() {
     var w = S.wallet;
     var pending = S.payments.filter(function (p) { return p.status === 'pending' || p.status === 'awaiting'; });
+    var sumOf = function (xs, k) { return xs.reduce(function (s, x) { return s + Number(x[k] || 0); }, 0); };
+    var waitClear = sumOf(pending.filter(function (p) { return p.status === 'pending'; }), 'amount');
+    var waitPay = sumOf(S.clearings.filter(function (c) { return c.status !== 'reimbursed'; }), 'total');
+    var limit = Number(w.limit_amount) || 0;
+    var pct = function (v) { return limit > 0 ? Math.max(0, Math.min(100, v / limit * 100)).toFixed(1) : 0; };
+    var low = w.balance >= 0 && limit > 0 && w.balance / limit * 100 < Number(S.settings.low_pct || 20);
+
+    var payGroups = [];
     var rows = pending.map(function (p) {
       var photos = (p.pc_photos || []).slice().sort(function (a, b) { return a.sort - b.sort; });
-      return '<tr' + (S.sel[p.id] ? ' class="on"' : '') + '><td class="sel">' + (p.status === 'pending' ? '<input type="checkbox" data-sel="' + p.id + '"' + (S.sel[p.id] ? ' checked' : '') + ' aria-label="เลือกรายการ">' : '<span class="tag warn">รอยืนยัน</span>') + '</td>' +
+      var g = ['all', p.status === 'awaiting' ? 'awaiting' : '', p.voucher_no ? '' : 'novoucher', (p.flags || []).length ? 'flag' : '', p.note ? 'noted' : ''].filter(Boolean).join(' ');
+      payGroups.push(g);
+      var q = [p.description, p.voucher_no, p.branch_code, p.note, baht(p.amount), dmy(p.ai_date || p.created_at)].join(' ').toLowerCase();
+      return '<tr data-g="' + g + '" data-q="' + esc(q) + '"' + (S.sel[p.id] ? ' class="on"' : '') + '><td class="sel">' + (p.status === 'pending' ? '<input type="checkbox" data-sel="' + p.id + '"' + (S.sel[p.id] ? ' checked' : '') + ' aria-label="เลือกรายการ">' : '<span class="tag warn">รอยืนยัน</span>') + '</td>' +
         '<td data-label="ว/ด/ป">' + dmy(p.ai_date || p.created_at) + '</td>' +
         '<td class="full"><div class="desc">' + esc(p.description) + '</div>' + ((p.branch_code || (p.flags || []).length || p.photo_pending) ? '<div>' +
           (p.branch_code ? '<span class="tag">' + esc(p.branch_code) + '</span>' : '') +
           (p.flags || []).map(function (f) { return FLAG[f] ? '<span class="tag ' + FLAG[f][1] + '">' + FLAG[f][0] + '</span>' : ''; }).join('') +
-          (p.photo_pending ? '<span class="tag warn">รูปยังไม่เข้า Drive</span>' : '') + '</div>' : '') + '</td>' +
+          (p.photo_pending ? '<span class="tag warn">รูปยังไม่เข้า Drive</span>' : '') + '</div>' : '') +
+          (p.note ? '<div class="note-line">' + ICON.note + esc(p.note) + '</div>' : '') + '</td>' +
         '<td data-label="หลักฐาน" class="muted">' + esc(EVIDENCE[p.evidence_type] || '-') + '</td>' +
         '<td data-label="เลขที่ใบเบิก">' + (p.voucher_no ? esc(p.voucher_no) : '<span class="tag bad">ยังไม่มี</span>') + '</td>' +
         '<td data-label="จำนวนเงิน" class="num amt">' + baht(p.amount) + '</td>' +
         '<td class="thumbs full">' + photos.map(function (ph) { return '<img alt="หลักฐาน" data-photo="' + ph.id + '">'; }).join('') + '</td>' +
         '<td class="act">' + (p.status === 'pending' ? '<button type="button" class="sm" data-pay="' + p.id + '">แก้ไข</button>' : '') + '<button type="button" class="sm danger" data-reject="' + p.id + '">ไม่รับ</button></td></tr>';
     }).join('');
+    var clGroups = [];
     var cl = S.clearings.map(function (c) {
-      return '<tr><td data-label="วันที่">' + dmy(c.created_at) + '</td><td class="full"><input data-doc="' + c.id + '" value="' + esc(c.doc_no || '') + '" placeholder="วางเลขที่ใบเคลียร์" aria-label="เลขที่ใบเคลียร์"></td>' +
+      var g = 'all ' + (c.status === 'reimbursed' ? 'reimbursed' : 'issued');
+      clGroups.push(g);
+      var q = [c.doc_no, c.note, baht(c.total), dmy(c.created_at)].join(' ').toLowerCase();
+      return '<tr data-g="' + g + '" data-q="' + esc(q) + '"><td data-label="วันที่">' + dmy(c.created_at) + '</td>' +
+        '<td class="full"><input data-doc="' + c.id + '" value="' + esc(c.doc_no || '') + '" placeholder="วางเลขที่ใบเคลียร์" aria-label="เลขที่ใบเคลียร์"></td>' +
+        '<td class="full"><input data-cnote="' + c.id + '" value="' + esc(c.note || '') + '" placeholder="หมายเหตุ" aria-label="หมายเหตุใบเคลียร์" maxlength="500"></td>' +
         '<td data-label="ยอด" class="num amt">' + baht(c.total) + '</td><td>' + (c.status === 'reimbursed' ? '<span class="tag ok">โอนแล้ว</span>' : '<span class="tag warn">รอโอน</span>') + '</td>' +
         '<td class="act"><button type="button" class="sm" data-print="' + c.id + '">' + ICON.print + 'พิมพ์</button>' + (c.status !== 'reimbursed' ? '<button type="button" class="sm primary" data-paid="' + c.id + '">โอนแล้ว</button>' : '') + '</td></tr>';
     }).join('');
+
     app.innerHTML = '<button type="button" class="ghost back" id="btnBack">' + ICON.back + 'กระเป๋าทั้งหมด</button>' +
-      '<div class="card hero"><div><h2>' + esc(w.custodian_name) + '</h2><p class="muted">' + esc(w.unit_code || 'ไม่ระบุหน่วยงาน') + (w.employee_code ? ' · รหัสพนักงาน ' + esc(w.employee_code) : '') + '</p></div>' +
-      '<div class="stats"><div><span>วงเงิน</span><b>' + baht(w.limit_amount) + '</b></div><div><span>ใช้ไป</span><b>' + baht(w.outstanding) + '</b></div>' +
-      '<div class="main"><span>คงเหลือ</span><b class="' + (w.balance < 0 ? 'neg' : '') + '">' + baht(w.balance) + '</b></div></div>' + meter(w.balance, w.limit_amount) + '</div>' +
+      '<div class="card summary"><div class="sum-id"><div class="avatar lg" aria-hidden="true">' + esc(String(w.custodian_name || '?').trim().charAt(0)) + '</div><div>' +
+        '<h2>' + esc(w.custodian_name) + '</h2><p class="muted">' + esc(w.unit_code || 'ไม่ระบุหน่วยงาน') + (w.employee_code ? ' · รหัสพนักงาน ' + esc(w.employee_code) : '') + '</p></div></div>' +
+      '<div class="tiles">' +
+        '<div class="tile"><span>วงเงิน</span><b>' + baht(limit) + '</b></div>' +
+        '<div class="tile"><span><i class="dot pend"></i>รอเคลียร์</span><b>' + baht(waitClear) + '</b></div>' +
+        '<div class="tile"><span><i class="dot iss"></i>รอโอนคืน</span><b>' + baht(waitPay) + '</b></div>' +
+        '<div class="tile hl' + (w.balance < 0 ? ' neg' : low ? ' low' : '') + '"><span>คงเหลือ</span><b>' + baht(w.balance) + '</b></div>' +
+      '</div>' +
+      '<div class="stackbar" role="img" aria-label="รอเคลียร์ ' + baht(waitClear) + ' รอโอนคืน ' + baht(waitPay) + ' คงเหลือ ' + baht(w.balance) + ' จากวงเงิน ' + baht(limit) + '">' +
+        '<i class="pend" style="--p:' + pct(waitClear) + '%"></i><i class="iss" style="--p:' + pct(waitPay) + '%"></i></div>' +
+      '<p class="muted sum-note">' + (w.balance < 0 ? 'ผู้รักษาเงินสดย่อยสำรองจ่ายเกินวงเงิน ' + baht(-w.balance) + ' บาท' : 'ใช้ไป ' + baht(waitClear + waitPay) + ' บาท (' + pct(waitClear + waitPay) + '% ของวงเงิน)') + '</p></div>' +
+
       '<div class="card"><div class="card-head"><h3 class="grow">รายการรอเคลียร์<span class="count">' + pending.length + ' รายการ</span></h3>' +
       '<button type="button" id="btnVoucher">' + ICON.doc + 'ขอเลขที่ใบเบิก (DocGen)</button></div>' +
-      (rows ? '<div class="scroll"><table class="stack"><thead><tr><th></th><th>ว/ด/ป</th><th>รายการ</th><th>หลักฐาน</th><th>เลขที่ใบเบิกค่าใช้จ่าย</th><th class="num">จำนวนเงิน</th><th>รูป</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+      (rows ? '<div class="filters">' + searchBox('pay', 'ค้นหารายการ เลขที่ใบเบิก สาขา หมายเหตุ') + chips('pay', PAY_FILTERS, payGroups) + '</div>' +
+        '<div class="scroll" data-list="pay"><table class="stack"><thead><tr><th><input type="checkbox" id="selAll" aria-label="เลือกทุกรายการที่แสดง"></th><th>ว/ด/ป</th><th>รายการ</th><th>หลักฐาน</th><th>เลขที่ใบเบิกค่าใช้จ่าย</th><th class="num">จำนวนเงิน</th><th>รูป</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        '<div class="empty" data-none="pay" hidden><b>ไม่พบรายการ</b>ลองเปลี่ยนตัวกรองหรือคำค้นหา</div>'
         : '<div class="empty"><b>ไม่มีรายการรอเคลียร์</b>รายการใหม่จะเข้ามาเมื่อผู้รักษาเงินสดย่อยสั่ง "จ่าย" ในกลุ่ม LINE</div>') +
       '<div class="selbar"><span id="selSum" class="grow"></span><button type="button" class="primary" id="btnClear">ออกใบเคลียร์</button></div></div>' +
-      '<div class="card"><div class="card-head"><h3 class="grow">ใบเคลียร์</h3><button type="button" id="btnClearingNo">' + ICON.doc + 'ขอเลขที่ใบเคลียร์ (DocGen)</button></div>' +
-      (cl ? '<div class="scroll"><table class="stack"><thead><tr><th>วันที่</th><th>เลขที่</th><th class="num">ยอด</th><th>สถานะ</th><th></th></tr></thead><tbody>' + cl + '</tbody></table></div>' : '<div class="empty"><b>ยังไม่มีใบเคลียร์</b>ติ๊กรายการด้านบนแล้วกด "ออกใบเคลียร์"</div>') + '</div>';
+
+      '<div class="card"><div class="card-head"><h3 class="grow">ใบเคลียร์<span class="count">' + S.clearings.length + ' ใบ</span></h3><button type="button" id="btnClearingNo">' + ICON.doc + 'ขอเลขที่ใบเคลียร์ (DocGen)</button></div>' +
+      (cl ? '<div class="filters">' + searchBox('cl', 'ค้นหาเลขที่ หมายเหตุ ยอด') + chips('cl', CL_FILTERS, clGroups) + '</div>' +
+        '<div class="scroll" data-list="cl"><table class="stack"><thead><tr><th>วันที่</th><th>เลขที่</th><th>หมายเหตุ</th><th class="num">ยอด</th><th>สถานะ</th><th></th></tr></thead><tbody>' + cl + '</tbody></table></div>' +
+        '<div class="empty" data-none="cl" hidden><b>ไม่พบใบเคลียร์</b>ลองเปลี่ยนตัวกรองหรือคำค้นหา</div>'
+        : '<div class="empty"><b>ยังไม่มีใบเคลียร์</b>ติ๊กรายการด้านบนแล้วกด "ออกใบเคลียร์"</div>') + '</div>';
 
     document.getElementById('btnBack').onclick = home;
     document.getElementById('btnVoucher').onclick = function () { openDocgen(VOUCHER_FORM); };
     document.getElementById('btnClearingNo').onclick = function () { openDocgen(CLEARING_FORM); };
-    app.querySelectorAll('[data-sel]').forEach(function (c) { c.onchange = function () { S.sel[c.dataset.sel] = c.checked; c.closest('tr').classList.toggle('on', c.checked); updateSel(); }; });
+    app.querySelectorAll('[data-chip]').forEach(function (b) { b.onclick = function () { S.f[b.dataset.chip] = b.dataset.v; applyFilter(b.dataset.chip); }; });
+    app.querySelectorAll('[data-search]').forEach(function (inp) { inp.oninput = function () { S.f[inp.dataset.search + 'Q'] = inp.value; applyFilter(inp.dataset.search); }; });
+    app.querySelectorAll('[data-sel]').forEach(function (c) { c.onchange = function () { S.sel[c.dataset.sel] = c.checked; c.closest('tr').classList.toggle('on', c.checked); updateSel(); syncAll(); }; });
+    var all = document.getElementById('selAll');
+    if (all) all.onchange = function () {
+      app.querySelectorAll('[data-sel]').forEach(function (c) {
+        if (c.closest('tr').hidden) return;
+        c.checked = all.checked; S.sel[c.dataset.sel] = all.checked; c.closest('tr').classList.toggle('on', all.checked);
+      });
+      updateSel(); syncAll();
+    };
     app.querySelectorAll('[data-pay]').forEach(function (b) { b.onclick = function () { paymentForm(S.payments.find(function (p) { return p.id === Number(b.dataset.pay); })); }; });
     app.querySelectorAll('[data-reject]').forEach(function (b) {
       b.onclick = function () {
@@ -422,6 +550,9 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
     app.querySelectorAll('[data-doc]').forEach(function (inp) {
       inp.onchange = function () { api('clearing_save', { id: Number(inp.dataset.doc), docNo: inp.value }).then(function () { toast('บันทึกเลขที่แล้ว'); refresh(); }).catch(fail); };
     });
+    app.querySelectorAll('[data-cnote]').forEach(function (inp) {
+      inp.onchange = function () { api('clearing_save', { id: Number(inp.dataset.cnote), note: inp.value }).then(function () { toast('บันทึกหมายเหตุแล้ว'); refresh(); }).catch(fail); };
+    });
     app.querySelectorAll('[data-paid]').forEach(function (b) {
       b.onclick = function () {
         if (!confirm('ยืนยันว่าโอนเงินชดเชยให้ผู้รักษาเงินสดย่อยแล้ว? วงเงินจะคืนตามยอดใบเคลียร์')) return;
@@ -430,6 +561,8 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
     });
     app.querySelectorAll('[data-print]').forEach(function (b) { b.onclick = function () { printClearing(Number(b.dataset.print)); }; });
     document.getElementById('btnClear').onclick = createClearing;
+    if (rows) applyFilter('pay');
+    if (cl) applyFilter('cl');
     updateSel();
   }
 
@@ -450,10 +583,11 @@ dialog img.full { max-width: 100%; border-radius: var(--r-sm); display: block; m
       '<label>สาขาที่เกี่ยวข้อง<input id="pBranch" value="' + esc(p.branch_code || '') + '"></label>' +
       '<label>ประเภทหลักฐาน<select id="pEv"><option value="">ไม่ระบุ</option><option value="receipt"' + (p.evidence_type === 'receipt' ? ' selected' : '') + '>ใบกำกับภาษี/ใบเสร็จ</option><option value="substitute"' + (p.evidence_type === 'substitute' ? ' selected' : '') + '>ใบแทนใบเสร็จ</option></select></label>' + // ds-allow-native-select: keyboard and screen-reader friendly on branch Chromium 109
       '<label>เลขที่ใบเบิกค่าใช้จ่าย<input id="pVoucher" value="' + esc(p.voucher_no || '') + '"></label>' +
+      '<label>หมายเหตุ<textarea id="pNote" rows="3" maxlength="500" placeholder="เช่น รอใบเสร็จตัวจริง">' + esc(p.note || '') + '</textarea></label>' +
       '<div class="foot"><button type="button" id="pDocgen">ขอเลขที่ใบเบิก (DocGen)</button><span class="grow"></span><button type="button" data-close>ยกเลิก</button><button type="button" class="primary" id="pSave">บันทึก</button></div>');
     document.getElementById('pDocgen').onclick = function () { openDocgen(VOUCHER_FORM); };
     document.getElementById('pSave').onclick = function () {
-      api('payment_save', { id: p.id, amount: Number(val('pAmt')), description: val('pDesc'), branchCode: val('pBranch'), evidenceType: val('pEv') || null, voucherNo: val('pVoucher') })
+      api('payment_save', { id: p.id, amount: Number(val('pAmt')), description: val('pDesc'), branchCode: val('pBranch'), evidenceType: val('pEv') || null, voucherNo: val('pVoucher'), note: val('pNote') })
         .then(function () { closeDialog(); toast('บันทึกแล้ว'); refresh(); }).catch(fail);
     };
   }
